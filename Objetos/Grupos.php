@@ -16,7 +16,7 @@ class Grupos {
 
     /*
      * constructor del objeto
-     * recibe el periodo, nombre del programa, tipo del programa (diplomado, especializacion, maestria, doctorado)
+     * recibe el periodo(201x-1 ó 201x-2), nombre del programa, tipo del programa (diplomado, especializacion, maestria, doctorado)
      * cantidad de estudiantes, fecha de finalizacion del programa (dd/mm/aaaa) como un string, informacion (por defecto está vacía), semestre (por defecto está vacía)
      */
 

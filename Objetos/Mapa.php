@@ -18,15 +18,16 @@ class Mapa {
      * agrega un salon a la lista de salones
      */
 
-    public function agregarSalon($salon) {
+    private function agregarSalon($salon) {
         array_push($this->salones, $salon);
     }
 
+    
     /*
      * agrega un grupo a la lista de grupos
      */
 
-    public function agregarGrupos($grupo) {
+    private function agregarGrupos($grupo) {
         array_push($this->grupos, $grupo);
     }
 
@@ -34,10 +35,11 @@ class Mapa {
      * almacena los grupos en una celda del array
      * el id es el numero del salon en el que se dará la clase
      * recibe el numero del salon (bloque-salon ej: 11-102) y el array de grupos que entran al salon
+     * el array de grupos esta compuesto por el objeto del grupo.
      * si es un solo grupo en el salon debe estar en un array
      */
 
-    public function ingresarGrupoASalon($numeroSalon, $arrayGrupos) {
+    private function ingresarGrupoASalon($numeroSalon, $arrayGrupos) {
         $this->salonesConGrupo[$numeroSalon] = $arrayGrupos;
     }
 
@@ -46,10 +48,11 @@ class Mapa {
      * recibe el nombre del programa que se quiere eliminar
      */
 
-    public function eliminarGrupoPrograma($programa) {
+    private function eliminarGrupoPrograma($programa) {
         foreach ($this->grupos as $id => $grupo) {
             if ($grupo->getPrograma() === $programa) {
                 unset($this->grupos[$id]);
+                return "grupo eliminado";
             }
         }
         return "no se pudo eliminar el grupo";
@@ -60,7 +63,7 @@ class Mapa {
      * recibe el numero del salon a eliminar
      */
 
-    public function eliminarSalon($salon) {
+    private function eliminarSalon($salon) {
         foreach ($this->salones as $id => $salon) {
             if ($salon->getNumero() === $salon) {
                 unset($this->grupos[$id]);
@@ -195,29 +198,104 @@ class Mapa {
      * devuelve los grupos por el nombre de programa
      * recibe el nombre del programa
      */
-    
-    public function grupoPorPrograma($programa){
-        $res=array();
+
+    public function grupoPorPrograma($programa) {
+        $res = array();
         foreach ($this->grupos as $clase) {
-            if($clase->getPrograma()===$programa){
+            if ($clase->getPrograma() === $programa) {
                 array_push($res, $clase->getPeriodo());
             }
         }
         return $res;
     }
-    
+
     /*
      * devuelve los programas por el periodo del grupo
      * recibe el periodo del grupo
      */
-    
-    public function programaPorGrupo($periodo){
-        $res=array();
-        foreach ($this->grupos as $clase){
-            if($clase->getPeriodo()===$periodo){
+
+    public function programaPorGrupo($periodo) {
+        $res = array();
+        foreach ($this->grupos as $clase) {
+            if ($clase->getPeriodo() === $periodo) {
                 array_push($res, $clase->getPrograma());
             }
         }
         return $res;
     }
+
+    /*
+     * recibe el programa del cual se quiere conocer los periodos, sin el tipo de programa.
+     * retorna un array de periodos en los cuales se esta desarrollando el programa.
+     */
+
+    public function periodoPorPrograma($programa) {
+        $res = array();
+        foreach ($this->grupos as $clase) {
+            if ($clase->getPrograma() == $programa) {
+                array_push($res, $clase->getPeriodo());
+            }
+        }
+        return $res;
+    }
+
+    /*
+     * recibe una confirmacion si se desea quitar (true) o si se desea que el grupo siga (false)
+     * y la fecha de los grupos que se desean eliminar
+     * si la confirmacion es verdadera llama el metodo limiteFechaFinalizacion($fecha)
+     */
+
+    public function confirmacionFinalizacion($confirmacion, $fecha) {
+        if ($confirmacion) {
+            $this->limiteFechaFinalizacion($fecha);
+        } else {
+            return $confirmacion;
+        }
+    }
+
+    /*
+     * quita los grupos de los salones que llegaron a la fecha de finalizacion
+     * recibe la fecha de finalizacion
+     * NO LLAMAR DIRECTAMENTE! debe ser llamado por el metodo de confirmacionFinalizacion($confirmacion,$fecha)
+     */
+
+    private function limiteFechaFinalizacion($fecha) {
+        $grupos = array();
+        foreach ($this->grupos as $clases) {
+            if ($clases->getFechaFinalizacion() === $fecha) {
+                foreach ($this->salonesConGrupo as $salon => $grupos) {
+                    foreach ($grupos as $periodo => $clase) {
+                        if ($clase->getPrograma() === $clases) {
+                            unset($this->salonesConGrupo[$grupos[$periodo]]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * envia una notificacion con los grupos que tienen una semana para su fecha limite
+     */
+
+    public function gruposAExpirar1Sem() {
+        
+    }
+
+    /*
+     * envia una notificacion con los grupos que tienen tres dias para su fecha limite
+     */
+
+    public function gruposAExpirar3Dias() {
+        
+    }
+
+    /*
+     * envia una notificacion con los grupos que tienen un dia para su fecha limite
+     */
+
+    public function gruposAExpirar1Dia() {
+        
+    }
+
 }
