@@ -8,12 +8,20 @@ class Mapa {
 
     private $salones = array();
     private $grupos = array();
-    private $salonesConGrupo = array();
 
     function __construct() {
         
     }
+    /*
+     * crea un nuevo salon, recibe el numero del salon , la capacidad, la disponibilidad, la informacion (puede dejarse vacio)
+     * y la agrega al array de salones
+     */
 
+    public function crearSalon($numero,$capacidad, $disponibilidad=null,$info=null ){
+    $salonNuevo= new Salon($numero, $capacidad, sizeof($this->salones));
+    $this->agregarSalon($salonNuevo);
+    }
+    
     /*
      * agrega un salon a la lista de salones
      */
@@ -40,7 +48,7 @@ class Mapa {
      */
 
     private function ingresarGrupoASalon($numeroSalon, $arrayGrupos) {
-        $this->salonesConGrupo[$numeroSalon] = $arrayGrupos;
+        
     }
 
     /*
