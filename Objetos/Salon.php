@@ -11,17 +11,16 @@ class Salon {
     private $capacidad;
     private $disponibilidad;
     private $info;
-    private $gruposEnSalon;
                     
     /*
      * constructor del objeto
      * recibe el numero de salon (bloque-salon ej: 11-112)
      * la capacidad del salón (entero)
      * informacion extra(por defecto está vacío)
-     * disponibilidad (booleano que por defecto está vacio)
+     * disponibilidad (booleano que por defecto será true (disponible)
      */
 
-    function __construct($numero, $capacidad, $idSalon, $info = null, $disponibilidad = false, $grupos=null) {
+    function __construct($numero, $capacidad, $idSalon, $info = null, $disponibilidad = true) {
         $this->numero = $numero;
         $this->capacidad = $capacidad;
         $this->disponibilidad = $disponibilidad;
@@ -59,17 +58,23 @@ class Salon {
         $this->disponibilidad = $disponibilidad;
     }
     
-        /*
-     * almacena los grupos en una celda del array
-     * el id es el numero del salon en el que se dará la clase
-     * recibe el numero del salon (bloque-salon ej: 11-102) y el array de grupos que entran al salon
-     * el array de grupos esta compuesto por el objeto del grupo.
-     * si es un solo grupo en el salon debe estar en un array
-     */
-
-    private function ingresarGrupoASalon($arrayGrupos) {
-        $this->gruposEnSalon = $arrayGrupos;
+    function getIdSalon() {
+        return $this->idSalon;
     }
+
+    function getInfo() {
+        return $this->info;
+    }
+
+    function setIdSalon($idSalon) {
+        $this->idSalon = $idSalon;
+    }
+
+    function setInfo($info) {
+        $this->info = $info;
+    }
+
+
 
     
 }

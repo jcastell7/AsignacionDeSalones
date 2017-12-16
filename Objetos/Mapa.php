@@ -2,37 +2,77 @@
 
 class Mapa {
     /*
-     * clase contenedora de las listas de salones y de grupos
+     * clase contenedora de las tablas de salones y de grupos
      * recibe la informacion de la base de datos
      */
 
-    private $salones = array();
-    private $grupos = array();
+    private $salones;
+    private $grupos;
+    private $conn;
+    private $querySalones;
+    private $queryGrupos;
 
     function __construct() {
-        
+        require_once '../db/logindb.php';
+        $this->conn = new mysqli($hn, $un, $pw, $db);
+        if ($this->conn->connect_error) {
+            die($this->conn->connect_error);
+        }
+        $this->queryGrupos = "SELECT * FROM grupos";
+        $this->querySalones = "SELECT * FROM salones";
+        $this->salones = $this->conn->query($this->querySalones);
+        $this->grupos = $this->conn->query($this->queryGrupos);
     }
+
+    /*
+     * metodo para convertir de query de mysql a objeto Salon php
+     * recibe el idSalon y retorna un objeto Salon
+     */
+
+    private function convertirSqlObjetoSalon($idSalon) {
+        $object = $this->querySalones->fetch_object($idSalon);
+        $salon = new Salon($object->numero, $object->capacidad, $object->idSalon, $object->info, $object->disponibilidad);
+        return $salon;
+    }
+
     /*
      * crea un nuevo salon, recibe el numero del salon , la capacidad, la disponibilidad, la informacion (puede dejarse vacio)
      * y la agrega al array de salones
      */
 
-    public function crearSalon($numero,$capacidad, $disponibilidad=null,$info=null ){
-    $salonNuevo= new Salon($numero, $capacidad, sizeof($this->salones));
-    $this->agregarSalon($salonNuevo);
+    public function crearSalon($numero, $capacidad, $disponibilidad = true, $info = null) {
+        $idSalon = $this->salones->num_rows + 1;
+        $salonNuevo = new Salon($numero, $capacidad, $idSalon, $info, $disponibilidad);
+        $this->agregarSalon($salonNuevo);
     }
-    
+
     /*
-     * agrega un salon a la lista de salones
+     * agrega un salon a la tabla de salones
+     * recibe el objeto salon
      */
 
     private function agregarSalon($salon) {
-        array_push($this->salones, $salon);
+        $idSalon = $salon->getIdSalon();
+        $numero = $salon->getNumero();
+        $capacidad = $salon->getCapacidad();
+        $disponibilidad = $salon->getDisponibilidad();
+        $info = $salon->getInfo();
+        $agregarSalon = "INSERT INTO `salones` (`idSalon`, `numero`, `capacidad`, `disponibilidad`, `info`) VALUES ('$idSalon', '$numero', '$capacidad', '$disponibilidad', '$info')";
     }
 
-    
     /*
-     * agrega un grupo a la lista de grupos
+     * metodo para convertir de query de mysql a objeto Salon php
+     * recibe el idSalon y retorna un objeto Salon
+     */
+
+    private function convertirSqlObjetoSGrupo($idGrupo) {
+        $object = $this->queryGrupos->fetch_object($idGrupo);
+        $salon = new Salon($object->, $object->capacidad, $object->idSalon, $object->info, $object->disponibilidad);
+        return $salon;
+    }
+
+    /*
+     * agrega un grupo a la tabla de grupos
      */
 
     private function agregarGrupos($grupo) {
@@ -67,7 +107,7 @@ class Mapa {
     }
 
     /*
-     * elimina el salon de la lista de salones
+     * elimina el salon de la tabla de salones
      * recibe el numero del salon a eliminar
      */
 
@@ -81,7 +121,7 @@ class Mapa {
     }
 
     /*
-     * retorna una lista de los salones disponibles, es decir que no estan siendo utilizados
+     * retorna una tabla de los salones disponibles, es decir que no estan siendo utilizados
      * si no hay ninguno retorna vacio
      */
 
@@ -96,7 +136,7 @@ class Mapa {
     }
 
     /*
-     * retorna una lista de los salones que estan siendo utilizados
+     * retorna una tabla de los salones que estan siendo utilizados
      * si no hay ninguno retorna vacio
      */
 
@@ -111,7 +151,7 @@ class Mapa {
     }
 
     /*
-     * retorna una lista de los salones que esta utilizando un grupo
+     * retorna una tabla de los salones que esta utilizando un grupo
      * recibe el nombre del programa
      */
 
@@ -128,7 +168,7 @@ class Mapa {
     }
 
     /*
-     * obtiene una lista de los programas que finalizan determinada fecha
+     * obtiene una tabla de los programas que finalizan determinada fecha
      * recibe la fecha en formato fecha (dd/mm/aaaa) como un string
      */
 
@@ -143,7 +183,7 @@ class Mapa {
     }
 
     /*
-     * Devuelve una lista de los salones con determinada o menor capacidad
+     * Devuelve una tabla de los salones con determinada o menor capacidad
      * recibe la capacidad requerida (entero)
      */
 
@@ -158,7 +198,7 @@ class Mapa {
     }
 
     /*
-     * Devuelve una lista de los salones con determinada capacidad
+     * Devuelve una tabla de los salones con determinada capacidad
      * recibe la capacidad requerida (entero)
      */
 
@@ -173,7 +213,7 @@ class Mapa {
     }
 
     /*
-     * Devuelve una lista de los salones con determinada o mayor capacidad
+     * Devuelve una tabla de los salones con determinada o mayor capacidad
      * recibe la capacidad requerida (entero)
      */
 

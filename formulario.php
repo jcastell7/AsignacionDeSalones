@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
@@ -9,17 +10,11 @@
         <title>Asignacion de Salones</title>
     </head>
     <body>
-<form class="p-4">
-  <div class="form-group">
-    <label for="FormEmail2">Email</label>
-    <input type="email" class="form-control" id="FormEmail2" placeholder="email@cuc.edu.co">
-  </div>
-  <div class="form-group">
-    <label for="FormPassword2">Contraseña</label>
-    <input type="password" class="form-control" id="FormPassword2" placeholder="Contraseña">
-  </div>
-
-  <button type="submit" class="btn btn-primary">Ingresar</button>
-</form>
+<label class="col-form-label" for="texto"><?php echo 'texto de formulario';?></label>
+        <form action="#">
+            <div class="form-group">
+                <input class="form-control" id="texto" type="text" placeholder="Default input">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </body>
-    

@@ -14,6 +14,7 @@ class Grupos {
     private $numEstudiantes;
     private $fechaFinalizacion;
     private $info;
+    private $salonId;
 
     /*
      * constructor del objeto
@@ -21,7 +22,7 @@ class Grupos {
      * cantidad de estudiantes, fecha de finalizacion del programa (dd/mm/aaaa) como un string, informacion (por defecto está vacía), semestre (por defecto está vacía)
      */
 
-    function __construct($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null, $idGrupo) {
+    function __construct($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null, $idGrupo,$salonId=null) {
         $this->periodo = $periodo;
         $this->tipoPrograma = $tipoPrograma;
         $this->semestre = $semestre;
@@ -30,6 +31,8 @@ class Grupos {
         $this->fechaFinalizacion = $fechaFinalizacion;
         $this->info = $info;
         $this->idGrupo = $idGrupo;
+        $this->salonId = $salonId;
+        
     }
 
     /*
