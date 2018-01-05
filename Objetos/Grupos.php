@@ -22,7 +22,7 @@ class Grupos {
      * cantidad de estudiantes, fecha de finalizacion del programa (dd/mm/aaaa) como un string, informacion (por defecto está vacía), semestre (por defecto está vacía)
      */
 
-    function __construct($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null, $idGrupo,$salonId=null) {
+    function __construct($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null, $idGrupo, $salonId = null) {
         $this->periodo = $periodo;
         $this->tipoPrograma = $tipoPrograma;
         $this->semestre = $semestre;
@@ -32,12 +32,31 @@ class Grupos {
         $this->info = $info;
         $this->idGrupo = $idGrupo;
         $this->salonId = $salonId;
-        
     }
 
     /*
      * geters y seters de  atributos
      */
+
+    function getIdGrupo() {
+        return $this->idGrupo;
+    }
+
+    function getInfo() {
+        return $this->info;
+    }
+
+    function getSalonId() {
+        return $this->salonId;
+    }
+
+    function setInfo($info) {
+        $this->info = $info;
+    }
+
+    function setSalonId($salonId) {
+        $this->salonId = $salonId;
+    }
 
     function getPeriodo() {
         return $this->periodo;

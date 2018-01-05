@@ -7,6 +7,7 @@
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+        
         <title>Asignacion de Salones</title>
     </head>
     <body>
@@ -41,6 +42,9 @@
                                     <a class="dropdown-item" href="#">Agregar Salon</a>
                                     <a class="dropdown-item" href="#">Agregar Grupo</a>
                                     <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#">Editar Salon</a>
+                                    <a class="dropdown-item" href="#">Editar Grupo</a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="#">Eliminar Salon</a>
                                     <a class="dropdown-item" href="#">Eliminar Grupo</a>
                                     <div class="dropdown-divider"></div>
@@ -61,11 +65,15 @@
                 <div class="card-header ">
                     <div class="d-flex justify-content-between"> # Salon
                         <div class="dropdown show">
-                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="#">grupo 1</a>
-                                <a class="dropdown-item" href="#">grupo 2</a>
-                                <a class="dropdown-item" href="#">grupo 3</a>
+                            <a class="btn btn-secondary dropdown-toggle " href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                            <div class="dropdown-menu"  aria-labelledby="dropdownMenuLink">
+                                <div class="menuGrupo">
+                                <a class="dropdown-item" href="#"><input type="checkbox"/>grupo 1</a>
+                                <a class="dropdown-item" href="#"><input type="checkbox"/>grupo 2</a>
+                                <a class="dropdown-item" href="#"><input type="checkbox"/>grupo 3</a>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div><a class="dropdown-item" href="formulario.php">Aceptar</a></div>
                             </div>
                         </div>
                     </div>
@@ -83,7 +91,9 @@
                     # de cupos en el salon
                 </div>
             </div>
+            <br/>
         </div>
-    </div>
+        <script src="Archivos/js/js.js"></script>
+    
 </body>
 </html>

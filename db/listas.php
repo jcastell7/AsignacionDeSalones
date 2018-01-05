@@ -57,7 +57,7 @@ $salonId;
 $agregarGrupo="INSERT INTO `grupos` (`idGrupo`, `periodo`, `programa`, `tipoPrograma`, `semestre`, `numEstudiantes`, `fechaFinalizacion`, `info`, `salonId`) "
         . "VALUES ('$idGrupo', '$periodo', '$programa', '$tipoPrograma', '$semestre', '$numEstudiantes', '$fechaFinalizacion', '$info', '$salonId')";
 
-$editarGRupo="UPDATE `grupos` SET `programa` = '$programa' WHERE `grupos`.`idGrupo` = $idGrupo";
+$editarGRupo="UPDATE `grupos` SET `programa` = '$programa', WHERE `grupos`.`idGrupo` = $idGrupo";
 
 $borrarGrupo="DELETE FROM `grupos` WHERE `grupos`.`idGrupo` = $idGrupo";
 

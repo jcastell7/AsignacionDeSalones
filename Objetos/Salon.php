@@ -65,11 +65,7 @@ class Salon {
     function getInfo() {
         return $this->info;
     }
-
-    function setIdSalon($idSalon) {
-        $this->idSalon = $idSalon;
-    }
-
+    
     function setInfo($info) {
         $this->info = $info;
     }

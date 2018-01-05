@@ -11,6 +11,8 @@ class Mapa {
     private $conn;
     private $querySalones;
     private $queryGrupos;
+    private $matrizIdSalon;
+    private $matrizIdGrupos;
 
     function __construct() {
         require_once '../db/logindb.php';
@@ -22,6 +24,8 @@ class Mapa {
         $this->querySalones = "SELECT * FROM salones";
         $this->salones = $this->conn->query($this->querySalones);
         $this->grupos = $this->conn->query($this->queryGrupos);
+        $this->matrizIdSalon=0;
+        $this->matrizIdGrupos=0;
     }
 
     /*
@@ -37,11 +41,12 @@ class Mapa {
 
     /*
      * crea un nuevo salon, recibe el numero del salon , la capacidad, la disponibilidad, la informacion (puede dejarse vacio)
-     * y la agrega al array de salones
+     * lueog llama el metodo de agregar a la base de datos y lo almacena.
      */
 
     public function crearSalon($numero, $capacidad, $disponibilidad = true, $info = null) {
-        $idSalon = $this->salones->num_rows + 1;
+        $idSalon = $this->matrizIdSalon+1;
+        $this->matrizIdSalon=$idSalon;
         $salonNuevo = new Salon($numero, $capacidad, $idSalon, $info, $disponibilidad);
         $this->agregarSalon($salonNuevo);
     }
@@ -58,36 +63,76 @@ class Mapa {
         $disponibilidad = $salon->getDisponibilidad();
         $info = $salon->getInfo();
         $agregarSalon = "INSERT INTO `salones` (`idSalon`, `numero`, `capacidad`, `disponibilidad`, `info`) VALUES ('$idSalon', '$numero', '$capacidad', '$disponibilidad', '$info')";
+        $this->conn->query($agregarSalon);
+    }
+
+    /*
+     * modifica el registro seleccionado de la tabla salones
+     * el id no es modificable
+     */
+
+    private function modificarSalon($idSalon, $numero, $capacidad, $disponibilidad, $info) {
+        $editarSalon = "UPDATE `salones` SET `numero` = '$numero',`capacidad` = $capacidad,"
+                . "`disponibilidad` = $disponibilidad, `info` = $info WHERE `salones`.`idSalon` = $idSalon";
+        $this->conn->query($editarSalon);
     }
 
     /*
      * metodo para convertir de query de mysql a objeto Salon php
-     * recibe el idSalon y retorna un objeto Salon
+     * recibe el idGrupo y retorna un objeto Grupo
      */
 
-    private function convertirSqlObjetoSGrupo($idGrupo) {
+    private function convertirSqlObjetoGrupo($idGrupo) {
         $object = $this->queryGrupos->fetch_object($idGrupo);
-        $salon = new Salon($object->, $object->capacidad, $object->idSalon, $object->info, $object->disponibilidad);
-        return $salon;
+        $grupo = new Grupos($object->periodo, $object->programa, $object->tipoPrograma, $object->numEstudiantes, $object->fechaFinalizacion, $object->info, $object->semestre, $object->idGrupo, $object->salonId);
+        return $grupo;
     }
-
+    
+    /*
+     * 
+     */
+    
+    public function crearGrupo(){
+        
+    }
+    
     /*
      * agrega un grupo a la tabla de grupos
+     * recibe el objeto grupo
      */
 
     private function agregarGrupos($grupo) {
-        array_push($this->grupos, $grupo);
+        $idGrupo = $grupo->getIdGrupo();
+        $periodo = $grupo->getPeriodo();
+        $programa = $grupo->getPrograma();
+        $tipoPrograma = $grupo->getTipoPrograma();
+        $semestre = $grupo->getSemestre();
+        $numEstudiantes = $grupo->getNumEstudiantes();
+        $fechaFinalizacion = $grupo->getfechaFinalizacion();
+        $info = $grupo->getInfo();
+        $salonId = $grupo->getSalonId();
+        $agregarGrupo = "INSERT INTO `grupos` (`idGrupo`, `periodo`, `programa`, `tipoPrograma`, `semestre`, `numEstudiantes`, `fechaFinalizacion`, `info`, `salonId`) "
+                . "VALUES ('$idGrupo', '$periodo', '$programa', '$tipoPrograma', '$semestre', '$numEstudiantes', '$fechaFinalizacion', '$info', '$salonId')";
+        $this->conn->query($agregarGrupo);
     }
 
     /*
-     * almacena los grupos en una celda del array
-     * el id es el numero del salon en el que se dará la clase
-     * recibe el numero del salon (bloque-salon ej: 11-102) y el array de grupos que entran al salon
-     * el array de grupos esta compuesto por el objeto del grupo.
-     * si es un solo grupo en el salon debe estar en un array
+     * modifica el registro grupo de la tabla de grupos
+     * el id no es modificable
      */
 
-    private function ingresarGrupoASalon($numeroSalon, $arrayGrupos) {
+    function modificarGrupos($idGrupo, $periodo, $programa, $tipoPrograma, $semestre, $numEstudiantes, $fechaFinalizacion, $info, $salonId) {
+        $editarGrupo="UPDATE `grupos` SET `periodo` = '$periodo',`programa` = $programa, `tipoPrograma` = $tipoPrograma,"
+         . "`semestre` = $semestre,`numEstudiantes` = $numEstudiantes,`fechaFinalizacion` = $fechaFinalizacion,"
+         . "`info` = $info,`salonId` = $salonId WHERE `grupos`.`idGrupo` = $idGrupo";
+        $this->conn->query($editarGrupo);
+    }
+
+    /*
+     * 
+     */
+
+    private function ingresarGrupoASalon($idSalon, $arrayIdGrupos) {
         
     }
 
