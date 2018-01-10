@@ -1,18 +1,15 @@
 <?php
+
 include "Grupos.php";
 include "Salon.php";
+
 class Mapa {
-    
     /*
      * clase contenedora de las tablas de salones y de grupos
      * recibe la informacion de la base de datos
      */
 
-    private $salones;
-    private $grupos;
     private $conn;
-    private $querySalones;
-    private $queryGrupos;
     private $matrizIdSalon;
     private $matrizIdGrupos;
 
@@ -22,10 +19,6 @@ class Mapa {
         if ($this->conn->connect_error) {
             die($this->conn->connect_error);
         }
-        $this->queryGrupos = "SELECT * FROM grupos";
-        $this->querySalones = "SELECT * FROM salones";
-        $this->salones = $this->conn->query($this->querySalones);
-        $this->grupos = $this->conn->query($this->queryGrupos);
         $this->matrizIdSalon = 0;
         $this->matrizIdGrupos = 0;
     }
@@ -36,7 +29,7 @@ class Mapa {
      */
 
     private function convertirSqlObjetoSalon($idSalon) {
-        $resultado= $this->conn->query("SELECT * FROM `salones` WHERE  `idSalon` =$idSalon");
+        $resultado = $this->conn->query("SELECT * FROM `salones` WHERE  `idSalon` =$idSalon");
         $object = mysqli_fetch_object($resultado);
         $salon = new Salon($object->numero, $object->capacidad, $object->idSalon, $object->info, $object->disponibilidad);
         return $salon;
@@ -65,10 +58,10 @@ class Mapa {
         $capacidad = $salon->getCapacidad();
         $disponibilidad = $salon->getDisponibilidad();
         $info = $salon->getInfo();
-                if ($info==null) {
-            $info="NULL";
-        }else{
-            $info="'".$info."'";
+        if ($info == null) {
+            $info = "NULL";
+        } else {
+            $info = "'" . $info . "'";
         }
         $agregarSalon = "INSERT INTO `salones` (`idSalon`, `numero`, `capacidad`, `disponibilidad`, `info`) VALUES ('$idSalon', '$numero', '$capacidad', '$disponibilidad', $info)";
         $this->conn->query($agregarSalon);
@@ -85,10 +78,10 @@ class Mapa {
         $capacidad = $salon->getCapacidad();
         $disponibilidad = $salon->getDisponibilidad();
         $info = $salon->getInfo();
-        if ($info==null) {
-            $info="NULL";
-        }else{
-            $info="'".$info."'";
+        if ($info == null) {
+            $info = "NULL";
+        } else {
+            $info = "'" . $info . "'";
         }
         $editarSalon = "UPDATE `salones` SET `numero` = '$numero',`capacidad` = $capacidad,"
                 . "`disponibilidad` = $disponibilidad, `info` = $info WHERE `salones`.`idSalon` = $idSalon";
@@ -101,7 +94,7 @@ class Mapa {
      */
 
     public function convertirSqlObjetoGrupo($idGrupo) {
-        $resultado= $this->conn->query("SELECT * FROM `grupos` WHERE  `idGrupo` =$idGrupo");
+        $resultado = $this->conn->query("SELECT * FROM `grupos` WHERE  `idGrupo` =$idGrupo");
         $object = mysqli_fetch_object($resultado);
         $grupo = new Grupos($object->periodo, $object->programa, $object->tipoPrograma, $object->numEstudiantes, $object->fechaFinalizacion, $object->info, $object->semestre, $object->idGrupo, $object->salonId);
         return $grupo;
@@ -112,23 +105,23 @@ class Mapa {
      * y actualiza la base de datos
      */
 
-    public function crearGrupo($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion,  $info = null, $semestre = null, $salonId = null) {
+    public function crearGrupo($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null, $salonId = null) {
         $idGrupo = $this->matrizIdGrupos + 1;
         $this->matrizIdGrupos = $idGrupo;
-        if ($semestre==null) {
-            $semestre="NULL";
-        }else{
-            $semestre="'".$semestre."'";
+        if ($semestre == null) {
+            $semestre = "NULL";
+        } else {
+            $semestre = "'" . $semestre . "'";
         }
-        if ($info==null) {
-            $info="NULL";
-        }else{
-            $info="'".$info."'";
+        if ($info == null) {
+            $info = "NULL";
+        } else {
+            $info = "'" . $info . "'";
         }
-        if ($salonId==null) {
-            $salonId="NULL";
-        }else{
-            $salonId="'".$salonId."'";
+        if ($salonId == null) {
+            $salonId = "NULL";
+        } else {
+            $salonId = "'" . $salonId . "'";
         }
         $grupoNuevo = new Grupos($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info, $semestre, $idGrupo, $salonId);
         $this->agregarGrupos($grupoNuevo);
@@ -149,7 +142,7 @@ class Mapa {
         $fechaFinalizacion = $grupo->getfechaFinalizacion();
         $info = $grupo->getInfo();
         $salonId = $grupo->getSalonId();
-        $agregarGrupo ="INSERT INTO `grupos` (`idGrupo`, `periodo`, `programa`, `tipoPrograma`, `semestre`, `numEstudiantes`, `fechaFinalizacion`, `info`, `salonId`) VALUES ('$idGrupo', '$periodo', '$programa', '$tipoPrograma',$semestre , '$numEstudiantes', '$fechaFinalizacion', $info, $salonId);";
+        $agregarGrupo = "INSERT INTO `grupos` (`idGrupo`, `periodo`, `programa`, `tipoPrograma`, `semestre`, `numEstudiantes`, `fechaFinalizacion`, `info`, `salonId`) VALUES ('$idGrupo', '$periodo', '$programa', '$tipoPrograma',$semestre , '$numEstudiantes', '$fechaFinalizacion', $info, $salonId);";
         $this->conn->query($agregarGrupo);
     }
 
@@ -168,18 +161,18 @@ class Mapa {
         $fechaFinalizacion = $grupo->getFechaFinalizacion();
         $info = $grupo->getInfo();
         $salonId = $grupo->getSalonId();
-        if ($semestre==null) {
-            $semestre="NULL";
-        }else{
-            $semestre="'".$semestre."'";
+        if ($semestre == null) {
+            $semestre = "NULL";
+        } else {
+            $semestre = "'" . $semestre . "'";
         }
-        if ($info==null) {
-            $info="NULL";
-        }else{
-            $info="'".$info."'";
+        if ($info == null) {
+            $info = "NULL";
+        } else {
+            $info = "'" . $info . "'";
         }
-        if ($salonId==null) {
-            $salonId="NULL";
+        if ($salonId == null) {
+            $salonId = "NULL";
         }
         $editarGrupo = "UPDATE `grupos` SET `periodo` = '$periodo',`programa` = '$programa', `tipoPrograma` = '$tipoPrograma',"
                 . "`semestre` = $semestre,`numEstudiantes` = '$numEstudiantes',`fechaFinalizacion` = '$fechaFinalizacion',"
@@ -203,8 +196,14 @@ class Mapa {
      * recibe el nombre del programa que se quiere eliminar
      */
 
-    private function eliminarGrupoID($idPrograma) {
-        return "no se pudo eliminar el grupo";
+    private function eliminarGrupoID($idGrupo) {
+        $eliminarGrupo = "DELETE FROM `grupos` WHERE `grupos`.`idGrupo` = $idGrupo;";
+        $resultado = $this->conn->query($eliminarGrupo);
+        if (!$resultado) {
+            return "no se pudo eliminar el grupo";
+        } else {
+            return "eliminado correctamente";
+        }
     }
 
     /*
@@ -212,23 +211,14 @@ class Mapa {
      * recibe el numero del salon a eliminar
      */
 
-    private function eliminarSalon($salon) {
-        $borrarSalon="DELETE FROM `salones` WHERE `salones`.`idSalon` = $idSalon";
-        foreach ($this->salones as $id => $salon) {
-            if ($salon->getNumero() === $salon) {
-                unset($this->grupos[$id]);
-            }
+    private function eliminarSalon($idSalon) {
+        $eliminarSalon = "DELETE FROM `salones` WHERE `salones`.`idSalon` = $idSalon";
+        $resultado = $this->conn->query($eliminarSalon);
+        if (!$resultado) {
+            return "no se pudo eliminar el salon";
+        } else {
+            return "eliminado correctamente";
         }
-        return "no se pudo eliminar el salon";
-    }
-
-    /*
-     * retorna una lista de los salones disponibles, es decir que no estan siendo utilizados
-     * si no hay ninguno retorna vacio
-     */
-
-    public function salonesDisponibles() {
-        $grupos = $this->gruposConSalon();
     }
 
     /*
@@ -242,7 +232,7 @@ class Mapa {
         $result = $this->conn->query($query);
         $rows = $result->num_rows;
         for ($j = 0; $j < $rows; ++$j) {
-           $result->data_seek($j);
+            $result->data_seek($j);
             $grupo = $this->convertirSqlObjetoGrupo($result->fetch_assoc()['idGrupo']);
             if ($grupo->getSalonId() === null) {
                 array_push($respuesta, $grupo);
@@ -272,25 +262,67 @@ class Mapa {
     }
 
     /*
+     * 
+     */
+
+    public function listaSalones() {
+        $salones = array();
+        $query = "SELECT * FROM salones";
+        $result = $this->conn->query($query);
+        if (!$result) {
+            die($this->conn->error);
+        }
+        $rows = $result->num_rows;
+        for ($j = 0; $j < $rows; ++$j) {
+            $result->data_seek($j);
+            $idSalon = $result->fetch_assoc()['idSalon'];
+            if (!in_array($idSalon, $salones)) {
+                array_push($salones, $idSalon);
+            }
+        }
+        foreach ($salones as $key => $salon) {
+            $salones[$key] = $this->convertirSqlObjetoSalon($salon);
+        }
+    }
+
+    /*
      * retorna una tabla de los salones que estan siendo utilizados
      * si no hay ninguno retorna vacio
      */
 
     public function salonesOcupados() {
-        $respuesta=array();
-        $grupos=$this->gruposConSalon();
+        $respuesta = array();
+        $grupos = $this->gruposConSalon();
         foreach ($grupos as $grupo) {
-            $idSalon=$grupo->getSalonId();
+            $idSalon = $grupo->getSalonId();
             if (!in_array($idSalon, $respuesta)) {
                 array_push($respuesta, $idSalon);
             }
         }
         foreach ($respuesta as $key => $salon) {
-            $respuesta[$key]=$this->convertirSqlObjetoSalon($salon);
+            $respuesta[$key] = $this->convertirSqlObjetoSalon($salon);
         }
         return $respuesta;
     }
 
+    /*
+     * retorna una lista de los salones disponibles, es decir que no estan siendo utilizados
+     * si no hay ninguno retorna vacio
+     */
+
+    public function salonesDisponibles() {
+        $salones = $this->listaSalones();
+        $salonesOcupados = $this->salonesOcupados();
+        foreach ($salones as $key => $salon) {
+            if (in_array($salon, $salonesOcupados)) {
+                unset($salones[$key]);
+            }
+        }
+        if (empty($salones)) {
+            return "no hay salones disponibles";
+        }
+        return $salones;
+    }
 
     /*
      * retorna una tabla de los salones que esta utilizando un grupo
@@ -307,6 +339,28 @@ class Mapa {
             }
         }
         return $res;
+    }
+
+    /*
+     * 
+     */
+
+    private function query2ArraySalones($query) {
+        $respuesta = array();
+        $result = $this->conn->query($query);
+        if (!$result) {
+            die($this->conn->error);
+        }
+        $rows = $result->num_rows;
+        if ($rows > 0) {
+            for ($j = 0; $j < $rows; ++$j) {
+                $result->data_seek($j);
+                $salonObjeto = $this->convertirSqlObjetoSalon($result->fetch_assoc()['idGrupo']);
+                array_push($respuesta, $salonObjeto);
+            }
+            return $respuesta;
+        }
+        return "no hubo resultados";
     }
 
     /*
