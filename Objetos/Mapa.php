@@ -1,6 +1,8 @@
 <?php
-
+include "Grupos.php";
+include "Salon.php";
 class Mapa {
+    
     /*
      * clase contenedora de las tablas de salones y de grupos
      * recibe la informacion de la base de datos
@@ -34,7 +36,8 @@ class Mapa {
      */
 
     private function convertirSqlObjetoSalon($idSalon) {
-        $object = $this->querySalones->fetch_object($idSalon);
+        $resultado= $this->conn->query("SELECT * FROM `salones` WHERE  `idSalon` =$idSalon");
+        $object = mysqli_fetch_object($resultado);
         $salon = new Salon($object->numero, $object->capacidad, $object->idSalon, $object->info, $object->disponibilidad);
         return $salon;
     }
@@ -62,7 +65,12 @@ class Mapa {
         $capacidad = $salon->getCapacidad();
         $disponibilidad = $salon->getDisponibilidad();
         $info = $salon->getInfo();
-        $agregarSalon = "INSERT INTO `salones` (`idSalon`, `numero`, `capacidad`, `disponibilidad`, `info`) VALUES ('$idSalon', '$numero', '$capacidad', '$disponibilidad', '$info')";
+                if ($info==null) {
+            $info="NULL";
+        }else{
+            $info="'".$info."'";
+        }
+        $agregarSalon = "INSERT INTO `salones` (`idSalon`, `numero`, `capacidad`, `disponibilidad`, `info`) VALUES ('$idSalon', '$numero', '$capacidad', '$disponibilidad', $info)";
         $this->conn->query($agregarSalon);
     }
 
@@ -71,7 +79,17 @@ class Mapa {
      * el id no es modificable
      */
 
-    private function modificarSalon($idSalon, $numero, $capacidad, $disponibilidad, $info) {
+    public function modificarSalon($salon) {
+        $idSalon = $salon->getIdSalon();
+        $numero = $salon->getNumero();
+        $capacidad = $salon->getCapacidad();
+        $disponibilidad = $salon->getDisponibilidad();
+        $info = $salon->getInfo();
+        if ($info==null) {
+            $info="NULL";
+        }else{
+            $info="'".$info."'";
+        }
         $editarSalon = "UPDATE `salones` SET `numero` = '$numero',`capacidad` = $capacidad,"
                 . "`disponibilidad` = $disponibilidad, `info` = $info WHERE `salones`.`idSalon` = $idSalon";
         $this->conn->query($editarSalon);
@@ -82,8 +100,9 @@ class Mapa {
      * recibe el idGrupo y retorna un objeto Grupo
      */
 
-    private function convertirSqlObjetoGrupo($idGrupo) {
-        $object = $this->queryGrupos->fetch_object($idGrupo);
+    public function convertirSqlObjetoGrupo($idGrupo) {
+        $resultado= $this->conn->query("SELECT * FROM `grupos` WHERE  `idGrupo` =$idGrupo");
+        $object = mysqli_fetch_object($resultado);
         $grupo = new Grupos($object->periodo, $object->programa, $object->tipoPrograma, $object->numEstudiantes, $object->fechaFinalizacion, $object->info, $object->semestre, $object->idGrupo, $object->salonId);
         return $grupo;
     }
@@ -93,9 +112,24 @@ class Mapa {
      * y actualiza la base de datos
      */
 
-    public function crearGrupo($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $idGrupo, $info = null, $semestre = null, $salonId = null) {
-        $idGrupos = $this->matrizIdGrupos + 1;
-        $this->matrizIdGrupos = $idGrupos;
+    public function crearGrupo($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion,  $info = null, $semestre = null, $salonId = null) {
+        $idGrupo = $this->matrizIdGrupos + 1;
+        $this->matrizIdGrupos = $idGrupo;
+        if ($semestre==null) {
+            $semestre="NULL";
+        }else{
+            $semestre="'".$semestre."'";
+        }
+        if ($info==null) {
+            $info="NULL";
+        }else{
+            $info="'".$info."'";
+        }
+        if ($salonId==null) {
+            $salonId="NULL";
+        }else{
+            $salonId="'".$salonId."'";
+        }
         $grupoNuevo = new Grupos($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info, $semestre, $idGrupo, $salonId);
         $this->agregarGrupos($grupoNuevo);
     }
@@ -115,8 +149,7 @@ class Mapa {
         $fechaFinalizacion = $grupo->getfechaFinalizacion();
         $info = $grupo->getInfo();
         $salonId = $grupo->getSalonId();
-        $agregarGrupo = "INSERT INTO `grupos` (`idGrupo`, `periodo`, `programa`, `tipoPrograma`, `semestre`, `numEstudiantes`, `fechaFinalizacion`, `info`, `salonId`) "
-                . "VALUES ('$idGrupo', '$periodo', '$programa', '$tipoPrograma', '$semestre', '$numEstudiantes', '$fechaFinalizacion', '$info', '$salonId')";
+        $agregarGrupo ="INSERT INTO `grupos` (`idGrupo`, `periodo`, `programa`, `tipoPrograma`, `semestre`, `numEstudiantes`, `fechaFinalizacion`, `info`, `salonId`) VALUES ('$idGrupo', '$periodo', '$programa', '$tipoPrograma',$semestre , '$numEstudiantes', '$fechaFinalizacion', $info, $salonId);";
         $this->conn->query($agregarGrupo);
     }
 
@@ -130,13 +163,26 @@ class Mapa {
         $periodo = $grupo->getPeriodo();
         $programa = $grupo->getPrograma();
         $tipoPrograma = $grupo->getTipoPrograma();
-        $semestre = $grupo->semestre();
-        $numEstudiantes = $grupo->numEstudiantes();
-        $fechaFinalizacion = $grupo->fechaFinalizacion();
-        $info = $grupo->info();
+        $semestre = $grupo->getSemestre();
+        $numEstudiantes = $grupo->getNumEstudiantes();
+        $fechaFinalizacion = $grupo->getFechaFinalizacion();
+        $info = $grupo->getInfo();
         $salonId = $grupo->getSalonId();
-        $editarGrupo = "UPDATE `grupos` SET `periodo` = '$periodo',`programa` = $programa, `tipoPrograma` = $tipoPrograma,"
-                . "`semestre` = $semestre,`numEstudiantes` = $numEstudiantes,`fechaFinalizacion` = $fechaFinalizacion,"
+        if ($semestre==null) {
+            $semestre="NULL";
+        }else{
+            $semestre="'".$semestre."'";
+        }
+        if ($info==null) {
+            $info="NULL";
+        }else{
+            $info="'".$info."'";
+        }
+        if ($salonId==null) {
+            $salonId="NULL";
+        }
+        $editarGrupo = "UPDATE `grupos` SET `periodo` = '$periodo',`programa` = '$programa', `tipoPrograma` = '$tipoPrograma',"
+                . "`semestre` = $semestre,`numEstudiantes` = '$numEstudiantes',`fechaFinalizacion` = '$fechaFinalizacion',"
                 . "`info` = $info,`salonId` = $salonId WHERE `grupos`.`idGrupo` = $idGrupo";
         $this->conn->query($editarGrupo);
     }
@@ -157,13 +203,7 @@ class Mapa {
      * recibe el nombre del programa que se quiere eliminar
      */
 
-    private function eliminarGrupoPrograma($programa) {
-        foreach ($this->grupos as $id => $grupo) {
-            if ($grupo->getPrograma() === $programa) {
-                unset($this->grupos[$id]);
-                return "grupo eliminado";
-            }
-        }
+    private function eliminarGrupoID($idPrograma) {
         return "no se pudo eliminar el grupo";
     }
 
@@ -173,6 +213,7 @@ class Mapa {
      */
 
     private function eliminarSalon($salon) {
+        $borrarSalon="DELETE FROM `salones` WHERE `salones`.`idSalon` = $idSalon";
         foreach ($this->salones as $id => $salon) {
             if ($salon->getNumero() === $salon) {
                 unset($this->grupos[$id]);
@@ -201,7 +242,8 @@ class Mapa {
         $result = $this->conn->query($query);
         $rows = $result->num_rows;
         for ($j = 0; $j < $rows; ++$j) {
-            $grupo = $this->convertirSqlObjetoGrupo($result->data_seek($j)->fetch_assoc()['idGrupo']);
+           $result->data_seek($j);
+            $grupo = $this->convertirSqlObjetoGrupo($result->fetch_assoc()['idGrupo']);
             if ($grupo->getSalonId() === null) {
                 array_push($respuesta, $grupo);
             }
@@ -220,7 +262,8 @@ class Mapa {
         $result = $this->conn->query($query);
         $rows = $result->num_rows;
         for ($j = 0; $j < $rows; ++$j) {
-            $grupo = $this->convertirSqlObjetoGrupo($result->data_seek($j)->fetch_assoc()['idGrupo']);
+            $result->data_seek($j);
+            $grupo = $this->convertirSqlObjetoGrupo($result->fetch_assoc()['idGrupo']);
             if ($grupo->getSalonId() !== null) {
                 array_push($respuesta, $grupo);
             }
@@ -234,18 +277,20 @@ class Mapa {
      */
 
     public function salonesOcupados() {
-        $respuesta = array();
-        $query = "SELECT * FROM grupos";
-        $result = $this->conn->query($query);
-        $rows = $result->num_rows;
-        for ($j = 0; $j < $rows; ++$j) {
-            $grupo = $this->convertirSqlObjetoGrupo($result->data_seek($j)->fetch_assoc()['idGrupo']);
-            if ($grupo->getSalonId() === null) {
-                array_push($respuesta, $grupo);
+        $respuesta=array();
+        $grupos=$this->gruposConSalon();
+        foreach ($grupos as $grupo) {
+            $idSalon=$grupo->getSalonId();
+            if (!in_array($idSalon, $respuesta)) {
+                array_push($respuesta, $idSalon);
             }
+        }
+        foreach ($respuesta as $key => $salon) {
+            $respuesta[$key]=$this->convertirSqlObjetoSalon($salon);
         }
         return $respuesta;
     }
+
 
     /*
      * retorna una tabla de los salones que esta utilizando un grupo

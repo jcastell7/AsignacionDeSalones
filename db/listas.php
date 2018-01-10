@@ -1,5 +1,7 @@
 <?php
-
+require '../Objetos/Mapa.php';
+$mapa=new Mapa();
+/*
 require_once 'logindb.php';
 $conn = new mysqli($hn, $un, $pw, $db);
 if ($conn->connect_error) {
@@ -10,6 +12,8 @@ $result = $conn->query($query);
 if (!$result) {
     die($conn->error);
 }
+
+
 
 $rows = $result->num_rows;
 for ($j = 0; $j < $rows; ++$j) {
@@ -41,6 +45,38 @@ echo"<br>";
 echo"<br>";
 echo"<br>";
 print_r($objeto1);
+echo"<br>";
+echo"<hr>";
+echo"<br>";
+echo"<br>";
+ * 
+ * */
+ 
+
+print_r($mapa->gruposConSalon());
+echo"<br>";
+echo"<hr>";
+echo"<br>";
+echo"<br>";
+print_r($mapa->salonesOcupados());
+echo"<br>";
+echo"<hr>";
+echo"<br>";
+echo"<br>";
+$mapa->crearGrupo("2017-2", "ALTA GERENCIA ETÍLICA", "diplomado", 20, "2019-01-02");
+$mapa->crearGrupo("2017-2", "ALTA GERENCIA ETÍLICA0.5", "diplomado", 20, "2019-01-02",'informacion');
+$mapa->crearGrupo("2017-2", "ALTA GERENCIA ETÍLICA1", "diplomado", 20, "2019-01-02");
+$mapa->crearGrupo("2017-2", "ALTA GERENCIA ETÍLICA2", "diplomado", 20, "2019-01-02");
+$mapa->crearSalon("11-1987", 25);
+$mapa->crearSalon("11-123", 20, 0, "informacion");
+$grupo=$mapa->convertirSqlObjetoGrupo(1);
+$grupo->setNumEstudiantes(55);
+$grupo->setSalonId(1);
+echo"id del grupo: ";
+print_r($grupo->getIdGrupo());
+echo"<br>";
+$mapa->modificarGrupos($grupo);
+print_r($mapa->gruposSinSalon());
 
 /*
 $result->close();

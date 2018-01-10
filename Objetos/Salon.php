@@ -25,7 +25,6 @@ class Salon {
         $this->capacidad = $capacidad;
         $this->disponibilidad = $disponibilidad;
         $this->info = $info;
-        $this->gruposEnSalon= $grupos;
         $this->idSalon = $idSalon;
     }
 
