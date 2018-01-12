@@ -19,7 +19,7 @@ class Grupos {
     /*
      * constructor del objeto
      * recibe el periodo(201x-1 ó 201x-2), nombre del programa, tipo del programa (diplomado, especializacion, maestria, doctorado)
-     * cantidad de estudiantes, fecha de finalizacion del programa (dd/mm/aaaa) como un string, informacion (por defecto está vacía), semestre (por defecto está vacía)
+     * cantidad de estudiantes, fecha de finalizacion del programa (aaaa-mm-dd) como un string, informacion (por defecto está vacía), semestre (por defecto está vacía)
      */
 
     function __construct($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null, $idGrupo, $salonId = null) {

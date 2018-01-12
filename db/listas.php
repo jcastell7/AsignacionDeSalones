@@ -1,3 +1,4 @@
+<input class='dropdown-item' href='' onclick='recargarTarjetas();' type='submit' name='Aceptar' />
 <?php
 require '../Objetos/Mapa.php';
 $mapa=new Mapa();
@@ -69,6 +70,8 @@ $mapa->crearGrupo("2017-2", "ALTA GERENCIA ETÍLICA1", "diplomado", 20, "2019-01
 $mapa->crearGrupo("2017-2", "ALTA GERENCIA ETÍLICA2", "diplomado", 20, "2019-01-02");
 $mapa->crearSalon("11-1987", 25);
 $mapa->crearSalon("11-123", 20, 0, "informacion");
+
+
 $grupo=$mapa->convertirSqlObjetoGrupo(1);
 $grupo->setNumEstudiantes(55);
 $grupo->setSalonId(1);

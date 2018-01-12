@@ -12,15 +12,16 @@ class Mapa {
     private $conn;
     private $matrizIdSalon;
     private $matrizIdGrupos;
-
-    function __construct() {
-        require_once '../db/logindb.php';
+    private $aviso="";
+                function __construct() {
+        require_once 'db/logindb.php';
         $this->conn = new mysqli($hn, $un, $pw, $db);
         if ($this->conn->connect_error) {
             die($this->conn->connect_error);
         }
         $this->matrizIdSalon = 0;
         $this->matrizIdGrupos = 0;
+        
     }
 
     /*
@@ -181,11 +182,12 @@ class Mapa {
     }
 
     /*
-     * 
+     * recibe un array de los grupos(objeto) y les asigna el nuevo id del salon
+     * luego los guarda en la base de datos
      */
 
-    private function ingresarGrupoASalon($arrayIdGrupos, $idSalon) {
-        foreach ($arrayIdGrupos as $grupo) {
+    private function ingresarGrupoASalon($arrayGrupos, $idSalon) {
+        foreach ($arrayGrupos as $grupo) {
             $grupo->setSalonId($idSalon);
             $this->modificarGrupos($grupo);
         }
@@ -219,6 +221,31 @@ class Mapa {
         } else {
             return "eliminado correctamente";
         }
+    }
+
+    /*
+     * retorna una lista de los grupos en la base de datos
+     */
+
+    public function listarGrupos() {
+        $grupos = array();
+        $query = "SELECT * FROM grupos";
+        $result = $this->conn->query($query);
+        if (!$result) {
+            die($this->conn->error);
+        }
+        $rows = $result->num_rows;
+        for ($j = 0; $j < $rows; ++$j) {
+            $result->data_seek($j);
+            $idGrupo = $result->fetch_assoc()['idGrupo'];
+            if (!in_array($idGrupo, $grupos)) {
+                array_push($grupos, $idGrupo);
+            }
+        }
+        foreach ($grupos as $key => $grupo) {
+            $grupos[$key] = $this->convertirSqlObjetoGrupo($grupo);
+        }
+        return $grupos;
     }
 
     /*
@@ -283,6 +310,7 @@ class Mapa {
         foreach ($salones as $key => $salon) {
             $salones[$key] = $this->convertirSqlObjetoSalon($salon);
         }
+        return $salones;
     }
 
     /*
@@ -342,7 +370,9 @@ class Mapa {
     }
 
     /*
-     * 
+     * recibe una cadena de query y retorna un array con los resultados
+     * si no se encuentra nada retorna un aviso de no resultados.
+     * funciona solo para los query que retornan salones
      */
 
     private function query2ArraySalones($query) {
@@ -355,7 +385,7 @@ class Mapa {
         if ($rows > 0) {
             for ($j = 0; $j < $rows; ++$j) {
                 $result->data_seek($j);
-                $salonObjeto = $this->convertirSqlObjetoSalon($result->fetch_assoc()['idGrupo']);
+                $salonObjeto = $this->convertirSqlObjetoSalon($result->fetch_assoc()['idSalon']);
                 array_push($respuesta, $salonObjeto);
             }
             return $respuesta;
@@ -364,63 +394,67 @@ class Mapa {
     }
 
     /*
-     * obtiene una tabla de los programas que finalizan determinada fecha
-     * recibe la fecha en formato fecha (dd/mm/aaaa) como un string
+     * recibe una cadena de query y retorna un array con los resultados
+     * si no se encuentra nada retorna un aviso de no resultados.
+     * funciona solo para los query que retornan grupos
      */
 
-    public function programasPorFecha($fecha) {
-        $res = array();
-        foreach ($this->grupos as $programas) {
-            if ($programas->getFechaFinalizacion() === $fecha) {
-                array_push($res, $programas);
-            }
+    private function query2ArraySGrupos($query) {
+        $respuesta = array();
+        $result = $this->conn->query($query);
+        if (!$result) {
+            die($this->conn->error);
         }
-        return $res;
+        $rows = $result->num_rows;
+        if ($rows > 0) {
+            for ($j = 0; $j < $rows; ++$j) {
+                $result->data_seek($j);
+                $grupoObjeto = $this->convertirSqlObjetoGrupo($result->fetch_assoc()['idGrupo']);
+                array_push($respuesta, $grupoObjeto);
+            }
+            return $respuesta;
+        }
+        return "no hubo resultados";
     }
 
     /*
-     * Devuelve una tabla de los salones con determinada o menor capacidad
+     * obtiene una lista de los programas que finalizan determinada fecha
+     * recibe la fecha en formato fecha (aaaa-mm-dd) como un string
+     */
+
+    public function programasPorFecha($fecha) {
+        $query = "SELECT * FROM `grupos` WHERE `fechaFinalizacion` = '$fecha';";
+        return $this->query2ArraySGrupos($query);
+    }
+
+    /*
+     * Devuelve una lista de los salones con determinada o menor capacidad
      * recibe la capacidad requerida (entero)
      */
 
     public function salonesMenorIgual($cantidad) {
-        $res = array();
-        foreach ($this->salones as $salon) {
-            if ($salon->getCapacidad() <= $cantidad) {
-                array_push($res, $salon);
-            }
-        }
-        return $res;
+        $query = "SELECT * FROM `salones` WHERE `capacidad` <= $cantidad;";
+        return $this->query2ArraySalones($query);
     }
 
     /*
-     * Devuelve una tabla de los salones con determinada capacidad
+     * Devuelve una lista de los salones con determinada capacidad
      * recibe la capacidad requerida (entero)
      */
 
     public function salonesIgual($cantidad) {
-        $res = array();
-        foreach ($this->salones as $salon) {
-            if ($salon->getCapacidad() === $cantidad) {
-                array_push($res, $salon);
-            }
-        }
-        return $res;
+        $query = "SELECT * FROM `salones` WHERE `capacidad` = $cantidad;";
+        return $this->query2ArraySalones($query);
     }
 
     /*
-     * Devuelve una tabla de los salones con determinada o mayor capacidad
+     * Devuelve una lista de los salones con determinada o mayor capacidad
      * recibe la capacidad requerida (entero)
      */
 
     public function salonesMayorIgual($cantidad) {
-        $res = array();
-        foreach ($this->salones as $salon) {
-            if ($salon->getCapacidad() >= $cantidad) {
-                array_push($res, $salon);
-            }
-        }
-        return $res;
+        $query = "SELECT * FROM `salones` WHERE `capacidad` >= $cantidad;";
+        return $this->query2ArraySalones($query);
     }
 
     /*
@@ -429,13 +463,8 @@ class Mapa {
      */
 
     public function programaPorCantidadEstudiantes($cantidad) {
-        $res = array();
-        foreach ($this->grupos as $programa) {
-            if ($programa->getNumEstudiantes() === $cantidad) {
-                array_push($res, $programa);
-            }
-        }
-        return $res;
+        $query = "SELECT * FROM `grupos` WHERE `numEstudiantes` = $cantidad;";
+        return $this->query2ArraySGrupos($query);
     }
 
     /*
@@ -444,13 +473,8 @@ class Mapa {
      */
 
     public function grupoPorPrograma($programa) {
-        $res = array();
-        foreach ($this->grupos as $clase) {
-            if ($clase->getPrograma() === $programa) {
-                array_push($res, $clase->getPeriodo());
-            }
-        }
-        return $res;
+        $query = "SELECT * FROM `grupos` WHERE `programa` LIKE '$programa';";
+        return $this->query2ArraySGrupos($query);
     }
 
     /*
@@ -459,28 +483,8 @@ class Mapa {
      */
 
     public function programaPorGrupo($periodo) {
-        $res = array();
-        foreach ($this->grupos as $clase) {
-            if ($clase->getPeriodo() === $periodo) {
-                array_push($res, $clase->getPrograma());
-            }
-        }
-        return $res;
-    }
-
-    /*
-     * recibe el programa del cual se quiere conocer los periodos, sin el tipo de programa.
-     * retorna un array de periodos en los cuales se esta desarrollando el programa.
-     */
-
-    public function periodoPorPrograma($programa) {
-        $res = array();
-        foreach ($this->grupos as $clase) {
-            if ($clase->getPrograma() == $programa) {
-                array_push($res, $clase->getPeriodo());
-            }
-        }
-        return $res;
+        $query = "SELECT * FROM `grupos` WHERE `periodo` LIKE '$periodo';";
+        return $this->query2ArraySGrupos($query);
     }
 
     /*
@@ -523,7 +527,9 @@ class Mapa {
      */
 
     public function gruposAExpirar1Sem() {
-        
+
+        $aviso = "Alert.warning('Message','')";
+        echo$aviso;
     }
 
     /*
@@ -540,6 +546,134 @@ class Mapa {
 
     public function gruposAExpirar1Dia() {
         
+    }
+
+    /*
+     * crea y llena las tarjetas de los salones
+     */
+
+    public function llenarSalonesIndex() {
+
+        $salones = $this->listaSalones();
+        foreach ($salones as $salon) {
+            $numSalon = $salon->getNumero();
+            $idSalon = $salon->getIdSalon();
+            $numCuposSalon = $salon->getCapacidad();
+            $cuerpoTarjeta = $this->llenarGruposIndex($salon->getIdSalon());
+            $listaGrupos = $this->llenarListaGrupos();
+            $tarjetaSalon = "<div id='tarjeta.$idSalon' class='card text-white bg-dark mb-3' style='max-width: 20rem;'>" .
+                    "<div class='card-header '>" .
+                    "<div class='d-flex justify-content-between'>" . $numSalon .
+                    "<div class='dropdown show'>" .
+                    "<a class='btn btn-secondary dropdown-toggle ' href='' role='button' id='dropdownMenuLink' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></a>" .
+                    "<div class='dropdown-menu'  aria-labelledby='dropdownMenuLink'>" .
+                    "<form action='' method='post'>" .
+                    "<input type='hidden' value='$idSalon' name='idSalon'>" .
+                    "<div class='menuGrupo'>" . $listaGrupos . "</div>" .
+                    "<div class='dropdown-divider'></div>" .
+                    "<div><input class='dropdown-item' href='' onclick='recargarTarjetas();' type='submit' name='submit' value ='Aceptar'/></div>" .
+                    "</form>" .
+                    "</div>" .
+                    "</div>" .
+                    "</div>" .
+                    "</div>" .
+                    "<div id='bodyTarjeta.$idSalon' class='card-body'>" .
+                    $cuerpoTarjeta
+                    . "</div>" .
+                    "<div class='card-footer text-muted'>" .
+                    "Cantidad de puestos en Salon: " . $numCuposSalon .
+                    "</div>" .
+                    "</div>" .
+                    "<br/>";
+                    
+            echo $tarjetaSalon;
+        }
+    }
+
+    /*
+     * muestra que grupos estan en que salones
+     */
+
+    private function llenarGruposIndex($idSalon) {
+        $gruposConSalon = $this->gruposConSalon();
+        $respuesta = "";
+        foreach ($gruposConSalon as $grupos) {
+            if ($grupos->getSalonId() === $idSalon) {
+                $grupo1 = $grupos->getPrograma();
+                $tipoPrograma = $grupos->getTipoPrograma();
+                $programa = $grupos->getPrograma();
+                $numEstudiantes=$grupos->getNumEstudiantes();
+                $periodo=$grupos->getPeriodo();
+                $respuesta = "<h5 class='card-title'>" . $grupo1 . "</h5>" .
+                        "<p class='card-text'>" .
+                        $tipoPrograma . " en " . $programa  ."<br>" ." #est.".$numEstudiantes."<br>" .
+                        "periodo: ".$periodo.
+                        "</p>" . $respuesta;
+            }
+        }
+        return $respuesta;
+    }
+
+    /*
+     * llena el dropdown de las tarjetas con los grupos
+     */
+
+    private function llenarListaGrupos() {
+        $respuesta = "";
+        $listaGrupos = $this->listarGrupos();
+        foreach ($listaGrupos as $grupo) {
+            $programa = $grupo->getPrograma();
+            $idGrupo = $grupo->getIdGrupo();
+            $respuesta = "<a class='dropdown-item' href=''><input type='checkbox' name='check_list[]' value='$idGrupo'/>$programa</a>" . $respuesta;
+        }
+        return $respuesta;
+    }
+
+    /*
+     * 
+     */
+
+    public function cantidadEstudiantesEnSalon($idSalon) {
+        $contador = 0;
+        $gruposConSalon = $this->gruposConSalon();
+        foreach ($gruposConSalon as $grupos) {
+            if ($grupos->getSalonId() === $idSalon) {
+                $contador += $grupos->getNumEstudiantes();
+            }
+        }
+        return $contador;
+    }
+
+    /*
+     * recibe los grupos seleccionados y los pone en el salon del que se esta
+     * llamando el submit
+     */
+
+    public function cambiarGrupos() {
+        $idSalon = $_POST['idSalon'];
+        $arrayGrupos = array();
+        $contador = $this->cantidadEstudiantesEnSalon($idSalon);
+        $salon = $this->convertirSqlObjetoSalon($idSalon);
+        $aviso="";
+        if (!empty($_POST['check_list'])) {
+            foreach ($_POST['check_list'] as $selected) {
+                $idGrupo = $selected;
+                $grupo = $this->convertirSqlObjetoGrupo($idGrupo);
+                $contador += $grupo->getNumEstudiantes();
+                $capacidad = $salon->getCapacidad();
+                if ($contador <= $capacidad) {
+                    array_push($arrayGrupos, $grupo);
+                } else {
+                    $this->aviso="Alert.warning('No es posible asignar este grupo a este salon debido a las limitaciones de espacio fisico','La capacidad del salon es de ".$capacidad." personas');";
+                }
+            }
+        }
+        $this->ingresarGrupoASalon($arrayGrupos, $idSalon);
+        $cuerpo = $this->llenarGruposIndex($idSalon);
+        echo $aviso;
+    }
+    public function sobrecupo(){
+        echo $this->aviso;
     }
 
 }
