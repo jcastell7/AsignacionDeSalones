@@ -7,11 +7,11 @@ class Grupos {
      */
 
     private $idGrupo;
-    private $periodo;
-    private $programa;
     private $tipoPrograma;
-    private $semestre;
+    private $programa;
+    private $periodo;
     private $numEstudiantes;
+    private $semestre;
     private $fechaFinalizacion;
     private $info;
     private $salonId;
