@@ -10,18 +10,46 @@ class Mapa {
      */
 
     private $conn;
-    private $matrizIdSalon;
-    private $matrizIdGrupos;
-    private $aviso="";
-                function __construct() {
+    private $aviso = "";
+
+    function __construct() {
         require_once 'db/logindb.php';
         $this->conn = new mysqli($hn, $un, $pw, $db);
         if ($this->conn->connect_error) {
             die($this->conn->connect_error);
         }
-        $this->matrizIdSalon = 0;
-        $this->matrizIdGrupos = 0;
-        
+    }
+
+    /*
+     * retorna el id para el grupo nuevo
+     */
+
+    public function getIdGrupo() {
+        $query = "Select * from grupos order by idGrupo desc limit 1";
+        $res = $this->conn->query($query);
+        $rows = $res->num_rows;
+        if ($rows!=0) {
+            $grupo = mysqli_fetch_object($res);
+            return $grupo->idGrupo+1;
+        }else{
+            return 1;
+        }
+    }
+    
+    /*
+     * retorna el id para el grupo nuevo
+     */
+
+    public function getIdSalon() {
+        $query = "Select * from salones order by idSalon desc limit 1";
+        $res = $this->conn->query($query);
+        $rows = $res->num_rows;
+        if ($rows!=0) {
+            $salon = mysqli_fetch_object($res);
+            return $salon->idSalon+1;
+        }else{
+            return 1;
+        }
     }
 
     /*
@@ -32,19 +60,18 @@ class Mapa {
     private function convertirSqlObjetoSalon($idSalon) {
         $resultado = $this->conn->query("SELECT * FROM `salones` WHERE  `idSalon` =$idSalon");
         $object = mysqli_fetch_object($resultado);
-        $salon = new Salon($object->numero, $object->capacidad, $object->idSalon, $object->info, $object->disponibilidad);
+        $salon = new Salon($object->numero, $object->capacidad, $object->idSalon, $object->info);
         return $salon;
     }
 
     /*
-     * crea un nuevo salon, recibe el numero del salon , la capacidad, la disponibilidad, la informacion (puede dejarse vacio)
+     * crea un nuevo salon, recibe el numero del salon , la capacidad,  la informacion (puede dejarse vacio)
      * lueog llama el metodo de agregar a la base de datos y lo almacena.
      */
 
-    public function crearSalon($numero, $capacidad, $disponibilidad = true, $info = null) {
-        $idSalon = $this->matrizIdSalon + 1;
+    public function crearSalon($idSalon, $numero, $capacidad, $info) {
         $this->matrizIdSalon = $idSalon;
-        $salonNuevo = new Salon($numero, $capacidad, $idSalon, $info, $disponibilidad);
+        $salonNuevo = new Salon($numero, $capacidad, $idSalon, $info);
         $this->agregarSalon($salonNuevo);
     }
 
@@ -57,14 +84,13 @@ class Mapa {
         $idSalon = $salon->getIdSalon();
         $numero = $salon->getNumero();
         $capacidad = $salon->getCapacidad();
-        $disponibilidad = $salon->getDisponibilidad();
         $info = $salon->getInfo();
         if ($info == null) {
             $info = "NULL";
         } else {
             $info = "'" . $info . "'";
         }
-        $agregarSalon = "INSERT INTO `salones` (`idSalon`, `numero`, `capacidad`, `disponibilidad`, `info`) VALUES ('$idSalon', '$numero', '$capacidad', '$disponibilidad', $info)";
+        $agregarSalon = "INSERT INTO `salones` (`idSalon`, `numero`, `capacidad`, `info`) VALUES ('$idSalon', '$numero', '$capacidad',  $info)";
         $this->conn->query($agregarSalon);
     }
 
@@ -77,7 +103,6 @@ class Mapa {
         $idSalon = $salon->getIdSalon();
         $numero = $salon->getNumero();
         $capacidad = $salon->getCapacidad();
-        $disponibilidad = $salon->getDisponibilidad();
         $info = $salon->getInfo();
         if ($info == null) {
             $info = "NULL";
@@ -85,7 +110,7 @@ class Mapa {
             $info = "'" . $info . "'";
         }
         $editarSalon = "UPDATE `salones` SET `numero` = '$numero',`capacidad` = $capacidad,"
-                . "`disponibilidad` = $disponibilidad, `info` = $info WHERE `salones`.`idSalon` = $idSalon";
+                ." `info` = $info WHERE `salones`.`idSalon` = $idSalon";
         $this->conn->query($editarSalon);
     }
 
@@ -106,9 +131,8 @@ class Mapa {
      * y actualiza la base de datos
      */
 
-    public function crearGrupo($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null, $salonId = null) {
-        $idGrupo = $this->matrizIdGrupos + 1;
-        $this->matrizIdGrupos = $idGrupo;
+    public function crearGrupo($idGrupo, $tipoPrograma, $programa, $periodo, $numEstudiantes, $fechaFinalizacion, $info = null, $semestre = null) {
+        $salonId = "NULL";
         if ($semestre == null) {
             $semestre = "NULL";
         } else {
@@ -118,11 +142,6 @@ class Mapa {
             $info = "NULL";
         } else {
             $info = "'" . $info . "'";
-        }
-        if ($salonId == null) {
-            $salonId = "NULL";
-        } else {
-            $salonId = "'" . $salonId . "'";
         }
         $grupoNuevo = new Grupos($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info, $semestre, $idGrupo, $salonId);
         $this->agregarGrupos($grupoNuevo);
@@ -585,7 +604,7 @@ class Mapa {
                     "</div>" .
                     "</div>" .
                     "<br/>";
-                    
+
             echo $tarjetaSalon;
         }
     }
@@ -602,12 +621,12 @@ class Mapa {
                 $grupo1 = $grupos->getPrograma();
                 $tipoPrograma = $grupos->getTipoPrograma();
                 $programa = $grupos->getPrograma();
-                $numEstudiantes=$grupos->getNumEstudiantes();
-                $periodo=$grupos->getPeriodo();
+                $numEstudiantes = $grupos->getNumEstudiantes();
+                $periodo = $grupos->getPeriodo();
                 $respuesta = "<h5 class='card-title'>" . $grupo1 . "</h5>" .
                         "<p class='card-text'>" .
-                        $tipoPrograma . " en " . $programa  ."<br>" ." #est.".$numEstudiantes."<br>" .
-                        "periodo: ".$periodo.
+                        $tipoPrograma . " en " . $programa . "<br>" . " #est." . $numEstudiantes . "<br>" .
+                        "periodo: " . $periodo .
                         "</p>" . $respuesta;
             }
         }
@@ -654,7 +673,7 @@ class Mapa {
         $arrayGrupos = array();
         $contador = $this->cantidadEstudiantesEnSalon($idSalon);
         $salon = $this->convertirSqlObjetoSalon($idSalon);
-        $aviso="";
+        $aviso = "";
         if (!empty($_POST['check_list'])) {
             foreach ($_POST['check_list'] as $selected) {
                 $idGrupo = $selected;
@@ -664,7 +683,7 @@ class Mapa {
                 if ($contador <= $capacidad) {
                     array_push($arrayGrupos, $grupo);
                 } else {
-                    $this->aviso="Alert.warning('No es posible asignar este grupo a este salon debido a las limitaciones de espacio fisico','La capacidad del salon es de ".$capacidad." personas');";
+                    $this->aviso = "Alert.warning('No es posible asignar este grupo a este salon debido a las limitaciones de espacio fisico','La capacidad del salon es de " . $capacidad . " personas');";
                 }
             }
         }
@@ -672,8 +691,13 @@ class Mapa {
         $cuerpo = $this->llenarGruposIndex($idSalon);
         echo $aviso;
     }
-    public function sobrecupo(){
+
+    public function sobrecupo() {
         echo $this->aviso;
+    }
+
+    public function cerrarConexion() {
+        mysqli_close($this->conn);
     }
 
 }

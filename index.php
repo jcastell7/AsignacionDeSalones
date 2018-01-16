@@ -1,5 +1,53 @@
 <?php
-require_once 'mapaComun.php';
+require './mapaComun.php';
+session_start();
+if (!isset($_SESSION["recargaGRupos"])) {
+    $_SESSION["recargaGrupos"] = 1;
+} else {
+    $_SESSION["recargaGrupos"] ++;
+}
+if (!isset($_SESSION["recargaSalones"])) {
+    $_SESSION["recargaSalones"] = 1;
+} else {
+    $_SESSION["recargaSalones"] ++;
+}
+
+if (isset($_SERVER['HTTP_REFERER'])) {
+    $url = $_SERVER['HTTP_REFERER'];
+    if ($url == "http://localhost/asignaciondesalones/formularioGrupos.php") {
+        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
+            $idGrupo = $mapa->getIdGrupo();
+            $tipoPrograma = $_POST["tipoPrograma"];
+            $programa = $_POST["nombrePrograma"];
+            $periodo = $_POST["periodo"];
+            $numEstudiantes = $_POST["numEstudiantes"];
+            $fechaFinalizacion = $_POST["fechaFinalizacion"];
+            if (!empty($_POST["info"])) {
+                $info = $_POST["info"];
+            } else {
+                $info = null;
+            }
+            if (!empty($_POST["semestre"])) {
+                $semestre = $_POST["semestre"];
+            } else {
+                $semestre = null;
+            }
+            $mapa->crearGrupo($idGrupo, $tipoPrograma, $programa, $periodo, $numEstudiantes, $fechaFinalizacion, $info, $semestre);
+        }
+    } else if ($url == "http://localhost/asignaciondesalones/formularioSalones.php") {
+        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaSalones"] == 1) {
+            $idSalon = $mapa->getIdSalon();
+            $numeroSalon = $_POST["numeroSalon"];
+            $capacidad = $_POST["capacidad"];
+            if (!empty($_POST["info"])) {
+                $info = $_POST["info"];
+            } else {
+                $info = null;
+            }
+            $mapa->crearSalon($idSalon, $numeroSalon, $capacidad, $info);
+        }
+    }
+}
 ?>
 <!DOCTYPE html> 
 <html>
@@ -16,15 +64,23 @@ require_once 'mapaComun.php';
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
         <script src="Archivos/js/alerts.js"></script>
         <script>
-            function recargarTarjetas() {<?php if (isset($_POST['submit'])) { $mapa->cambiarGrupos();}?>}
+            function recargarTarjetas() {<?php
+if (isset($_POST['submit'])) {
+    $mapa->cambiarGrupos();
+}
+?>
+            }
             function llenarTarjetas() {
-                <?php $mapa->sobrecupo(); ?>
-                $( "#tarjetas" ).append("<?php $mapa->llenarSalonesIndex(); ?>")}
+<?php $mapa->sobrecupo(); ?>
+                $("#tarjetas").append("<?php $mapa->llenarSalonesIndex(); ?>")
+            }
+
         </script>
-        
+
+
         <title>Asignacion de Salones</title>
     </head>
-    <body onload="">
+    <body>
         <header>
             <nav class="d-flex navbar navbar-expand-lg navbar-light bg-light justify-content-between">
                 <div >
@@ -44,14 +100,34 @@ require_once 'mapaComun.php';
                                     Opciones
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="#">Lista de Salones Disponibles</a>
-                                    <a class="dropdown-item" href="#">Lista de Salones en Uso</a>
-                                    <a class="dropdown-item" href="#">Salones en usados por un Programa</a>
-                                    <a class="dropdown-item" href="#">Lista de Programas</a>
-                                    <a class="dropdown-item" href="#">Lista de Programas por Fecha de Finalizacion</a>
-                                    <a class="dropdown-item" href="#">Lista de Programas por Cantidad de Estudiantes</a>
-                                    <a class="dropdown-item" href="#">Lista de Grupos (Periodo) por Nombre de Programa</a>
-                                    <a class="dropdown-item" href="#">Lista de Programas por Grupos (Periodo)</a>
+                                    <form action="Reportes.php" method="post" id="formaReportes">
+                                        <div>
+                                            <input type="hidden" name="reporte" value="listaSalonesDisponibles">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes').submit();">Lista de Salones Disponibles</a>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" name="reporte" value="listaSalonesEnUso">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes').submit();">Lista de Salones en Uso</a>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" name="reporte" value="listaProgramas">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes').submit();">Lista de Programas</a>
+                                        </div>
+                                    </form>
+                                    <form action="FormularioReportes.php" method="post" id="formaReportes1">
+                                        <div>
+                                            <input type="hidden" name="reporte" value="salonesPorPrograma">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes1').submit();">Salones usados por un Programa</a>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" name="reporte" value="ProgramasPorNumEstudiantes">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes1').submit();">Lista de Programas por Cantidad de Estudiantes</a>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" name="reporte" value="programasPorGrupo">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes1').submit();">Lista de Programas por Grupos (Periodo)</a>
+                                        </div>
+                                    </form>
                                     <div class="dropdown-divider"></div>    
                                     <a class="dropdown-item" href="formularioSalones.php">Agregar Salon</a>
                                     <a class="dropdown-item" href="formularioGrupos.php">Agregar Grupo</a>
@@ -76,13 +152,13 @@ require_once 'mapaComun.php';
         </header>
         <div class="d-flex flex-row flex-wrap salones" id="tarjetas">
             <script id="anuncio">llenarTarjetas();
-                
+                <?php $mapa->cerrarConexion(); ?>
             </script>
         </div>
-        
+
         <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-        
+
         <script src="Archivos/js/js.js"></script>
-        
+
     </body>
 </html>

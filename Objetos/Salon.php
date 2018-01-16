@@ -9,7 +9,6 @@ class Salon {
     private $idSalon;
     private $numero;
     private $capacidad;
-    private $disponibilidad;
     private $info;
                     
     /*
@@ -20,10 +19,9 @@ class Salon {
      * disponibilidad (booleano que por defecto será true (disponible)
      */
 
-    function __construct($numero, $capacidad, $idSalon, $info = null, $disponibilidad = true) {
+    function __construct($numero, $capacidad, $idSalon, $info = null) {
         $this->numero = $numero;
         $this->capacidad = $capacidad;
-        $this->disponibilidad = $disponibilidad;
         $this->info = $info;
         $this->idSalon = $idSalon;
     }

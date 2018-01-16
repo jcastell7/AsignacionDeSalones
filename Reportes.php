@@ -1,10 +1,3 @@
-<?php
-require_once 'mapaComun.php';
-session_start();
-if ($_SESSION["recargaGrupos"] >= 1) {
-    unset($_SESSION["recargaGrupos"]);
-}
-?>
 <html>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" type="text/css">
@@ -90,55 +83,3 @@ if ($_SESSION["recargaGrupos"] >= 1) {
             </div>
         </nav>
     </header>
-    <form action='index.php' method='post'>
-        <h4>Agregar Nuevo Programa</h4>
-        </br>
-        <div class="form-group">
-            </br>
-            <label for="exampleFormControlInput1">Id Grupo</label>
-            <input name="id"  class="form-control" id="exampleFormControlInput1" placeholder="<?php echo $mapa->getIdGrupo(); ?>" readonly>
-        </div>
-        <div>
-            <label for="exampleFormControlInput1">Tipo Programa</label>  
-            <select class="form-control form-control" name="tipoPrograma" >
-                <option vale="Diplomado">Diplomado</option>
-                <option value="Especializacion">Especializacion</option>
-                <option Value="Maestria">Maestria</option>
-                <option Value="Doctorado">Doctorado</option>
-            </select>
-        </div>
-        <div class="form-group">
-            </br>
-            <label for="exampleFormControlInput1">Nombre Programa</label>
-            <input name="nombrePrograma"  class="form-control" id="exampleFormControlInput1" placeholder="" required>
-        </div>
-        <div class="form-group">
-            </br>
-            <label for="exampleFormControlInput1">Periodo</label>
-            <input name="periodo" class="form-control" id="exampleFormControlInput1" placeholder="" required>
-        </div>
-        <div class="form-group">
-            </br>
-            <label for="exampleFormControlInput1">Numero de Estudiantes</label>
-            <input name="numEstudiantes" class="form-control" id="exampleFormControlInput1" placeholder="" required type="number">
-        </div>
-        <div class="form-group">
-            </br>
-            <label for="exampleFormControlInput1">Fecha de Finalizacion</label>
-            <input name="fechaFinalizacion" type="text" class="form-control datepicker" placeholder="AAAA-MM-DD" required pattern="\d{4}-\d{2}-\d{2}"> 
-        </div>
-        <div class="form-group">
-            </br>
-            <label for="exampleFormControlInput1">Semestre</label>
-            <input name="semestre" class="form-control" id="exampleFormControlInput1" placeholder="" >
-        </div>
-        <div class="form-group">
-            <label for="exampleFormControlTextarea1">Informacion adicional</label>
-            <textarea name="info"class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Agregar nuevo Grupo</button>
-    </form>
-    <script src="Archivos/js/datePicker.js"></script>
-</body>
-</html>
-

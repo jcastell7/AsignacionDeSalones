@@ -1,4 +1,5 @@
 <?php
 require 'Objetos/Mapa.php';
-$mapa = new Mapa();
+static $mapa;
+$mapa = new Mapa()
 ?>      
