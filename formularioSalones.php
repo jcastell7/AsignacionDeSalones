@@ -1,8 +1,13 @@
 <?php
 require_once 'mapaComun.php';
 session_start();
-if ($_SESSION["recargaSalones"] >= 1) {
+if (isset($_SESSION["recargaSalones"])) {
+   if ($_SESSION["recargaSalones"] >= 1) {
     unset($_SESSION["recargaSalones"]);
+} 
+}
+else{
+    $_SESSION["recargaSalones"]=0;
 }
 ?>
 <html>
@@ -33,7 +38,10 @@ if ($_SESSION["recargaSalones"] >= 1) {
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ">
                         <li class="nav-item active pr-2">
-                            <a class="nav-link" href="index.php">Inicio <span class="sr-only">(current)</span></a>
+                            <form action="index.php" method="post" id="botonInicio">
+                                <input type="hidden" name="botonInicio" value="inicio">
+                                <a class="nav-link" href="javascript:{}" onclick="document.getElementById('botonInicio').submit();">Inicio <span class="sr-only">(current)</span></a>
+                            </form>
                         </li>
                         <li class="nav-item dropdown pr-2">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

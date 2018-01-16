@@ -1,12 +1,12 @@
 <?php
 require './mapaComun.php';
 session_start();
-if (!isset($_SESSION["recargaGRupos"])) {
+if (!isset($_SESSION["recargaGRupos"])||$_SESSION["recargaGRupos"]==0) {
     $_SESSION["recargaGrupos"] = 1;
 } else {
     $_SESSION["recargaGrupos"] ++;
 }
-if (!isset($_SESSION["recargaSalones"])) {
+if (!isset($_SESSION["recargaSalones"])||$_SESSION["recargaSalones"]==0) {
     $_SESSION["recargaSalones"] = 1;
 } else {
     $_SESSION["recargaSalones"] ++;
@@ -45,6 +45,41 @@ if (isset($_SERVER['HTTP_REFERER'])) {
                 $info = null;
             }
             $mapa->crearSalon($idSalon, $numeroSalon, $capacidad, $info);
+        }
+    }else if($url=="http://localhost/asignaciondesalones/editarSalones.php"){
+         if (!isset($_POST["botonInicio"]) && $_SESSION["recargaSalones"] == 1) {
+             $idSalon=$_POST["id"];
+             $numeroSalon = $_POST["numeroSalon"];
+            $capacidad = $_POST["capacidad"];
+            if (!empty($_POST["info"])) {
+                $info = $_POST["info"];
+            } else {
+                $info = null;
+            }
+            $salon=new salon($numeroSalon, $capacidad, $idSalon, $info);
+            $mapa->modificarSalon($salon);
+         }
+    }else if($url=="http://localhost/asignaciondesalones/editarGrupos.php"){
+        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
+            $idGrupo = $_POST["id"];
+            $tipoPrograma = $_POST["tipoPrograma"];
+            $programa = $_POST["nombrePrograma"];
+            $periodo = $_POST["periodo"];
+            $numEstudiantes = $_POST["numEstudiantes"];
+            $fechaFinalizacion = $_POST["fechaFinalizacion"];
+            if (!empty($_POST["info"])) {
+                $info = $_POST["info"];
+            } else {
+                $info = null;
+            }
+            if (!empty($_POST["semestre"])) {
+                $semestre = $_POST["semestre"];
+            } else {
+                $semestre = null;
+            }
+            $salonId=$mapa->getGrupo($idGrupo)->getSalonId();
+            $grupo=new Grupos($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info, $semestre, $idGrupo,$salonId);
+            $mapa->modificarGrupos($grupo);
         }
     }
 }

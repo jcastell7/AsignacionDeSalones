@@ -63,7 +63,13 @@ class Mapa {
         $salon = new Salon($object->numero, $object->capacidad, $object->idSalon, $object->info);
         return $salon;
     }
-
+    
+    /*
+     * metodo publico que retorna el objeto salon
+     */
+    public function getSalon($idSalon) {
+        return $this->convertirSqlObjetoSalon($idSalon);
+    }
     /*
      * crea un nuevo salon, recibe el numero del salon , la capacidad,  la informacion (puede dejarse vacio)
      * lueog llama el metodo de agregar a la base de datos y lo almacena.
@@ -119,13 +125,20 @@ class Mapa {
      * recibe el idGrupo y retorna un objeto Grupo
      */
 
-    public function convertirSqlObjetoGrupo($idGrupo) {
+    private function convertirSqlObjetoGrupo($idGrupo) {
         $resultado = $this->conn->query("SELECT * FROM `grupos` WHERE  `idGrupo` =$idGrupo");
         $object = mysqli_fetch_object($resultado);
         $grupo = new Grupos($object->periodo, $object->programa, $object->tipoPrograma, $object->numEstudiantes, $object->fechaFinalizacion, $object->info, $object->semestre, $object->idGrupo, $object->salonId);
         return $grupo;
     }
 
+    /*
+     * metodo publico que retorna un objeto grupo
+     */
+    public function getGrupo($idGrupo) {
+        return $this->convertirSqlObjetoGrupo($idGrupo);
+    }
+    
     /*
      * crea un nuevo objeto grupo y luego llama el metodo de agregar grupos 
      * y actualiza la base de datos
@@ -625,7 +638,8 @@ class Mapa {
                 $periodo = $grupos->getPeriodo();
                 $respuesta = "<h5 class='card-title'>" . $grupo1 . "</h5>" .
                         "<p class='card-text'>" .
-                        $tipoPrograma . " en " . $programa . "<br>" . " #est." . $numEstudiantes . "<br>" .
+                        $tipoPrograma . " en " . $programa . "<br>" . " #est."
+                        . $numEstudiantes . "<br>" .
                         "periodo: " . $periodo .
                         "</p>" . $respuesta;
             }
@@ -698,68 +712,71 @@ class Mapa {
 
     public function reporteListaGrupos() {
         $grupos = $this->listarGrupos();
-        $lista1 = "<ul class='list-group'>"
-                
-                . "<form action='editarGrupos.php' method='post' id='editarGrupos'>";
+        $lista1 = "<ul class='list-group'>";
         echo $lista1;
         foreach ($grupos as $grupo) {
-            $idGrupo=$grupo->getIdGrupo();
-            $item = "<li class='list-group-item d-flex justify-content-between'>"
+            $idGrupo = $grupo->getIdGrupo();
+            $item = "<form action='editarGrupos.php' method='post' id='editarGrupos.$idGrupo'>"
+                    . "<li class='list-group-item d-flex justify-content-between'>"
                     . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
                     . "<input type='hidden' name='editar' value='$idGrupo'><a href='javascript:{}' "
                     . 'onclick= "document.getElementById'
-                    . "('editarGrupos')"
+                    . "('editarGrupos.$idGrupo')"
                     . '.submit();"'
-                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>";
-        echo $item;
-            
+                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>"
+                    . "</form>";
+            echo $item;
         }
-        $lista2 = "</form>"
-                . "</ul>";
+        $lista2 = "</ul>";
         echo $lista2;
     }
 
-        public function reporteListaSalonesDisponibles() {
+    public function reporteListaSalonesDisponibles() {
         $salones = $this->salonesDisponibles();
-        $lista1 = "<ul class='list-group'>"
-                . "<form action='editarSalones.php' method='post' id='editarSalones'>";
+        $lista1 = "<ul class='list-group'>";
+             
         echo $lista1;
-        foreach ($salones as $salon) {
-            $idSalon=$salon->getIdSalon();
-             $item = "<li class='list-group-item d-flex justify-content-between'>"
-                    . $idSalon . '. ' . $salon->getNumero() 
-                    . "<input type='hidden' name='editar' value='$idSalon'><a href='javascript:{}' "
-                    . 'onclick= "document.getElementById'
-                    . "('editarSalones')"
-                    . '.submit();"'
-                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>";
-        echo $item;
-            
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<li class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<input type='hidden' name='editar' value='$idSalon'><a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>"
+                        . "</form>";
+                echo $item;
+            }
+        }else{
+            echo $salones;
         }
-        $lista2 = "</form>"
-                . "</ul>";
+        
+        $lista2 = "</ul>";
         echo $lista2;
     }
-    
-        public function reporteListaSalonesEnUso() {
+
+    public function reporteListaSalonesEnUso() {
         $salones = $this->salonesOcupados();
-        $lista1 = "<ul class='list-group'>"
-                . "<form action='editarSalones.php' method='post' id='editarSalones'>";
+        $lista1 = "<ul class='list-group'>";
         echo $lista1;
         foreach ($salones as $salon) {
-            $idSalon=$salon->getIdSalon();
-            $item = "<li class='list-group-item d-flex justify-content-between'>"
-                    . $idSalon . '. ' . $salon->getNumero() 
+            $idSalon = $salon->getIdSalon();
+            $item = "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                    . "<li class='list-group-item d-flex justify-content-between'>"
+                    . $idSalon . '. ' . $salon->getNumero()
                     . "<input type='hidden' name='editar' value='$idSalon'><a href='javascript:{}' "
                     . 'onclick= "document.getElementById'
-                    . "('editarSalones')"
+                    . "('editarSalones.$idSalon')"
                     . '.submit();"'
-                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>";
-        echo $item;
-            
+                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>"
+                    . "</form>";
+            echo $item;
         }
-        $lista2 = "</form>"
-                . "</ul>";
+        $lista2 = "</ul>";
         echo $lista2;
     }
+
 }

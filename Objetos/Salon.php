@@ -39,20 +39,12 @@ class Salon {
         return $this->capacidad;
     }
 
-    function getDisponibilidad() {
-        return $this->disponibilidad;
-    }
-
     function setNumero($numero) {
         $this->numero = $numero;
     }
 
     function setCapacidad($capacidad) {
         $this->capacidad = $capacidad;
-    }
-
-    function setDisponibilidad($disponibilidad) {
-        $this->disponibilidad = $disponibilidad;
     }
     
     function getIdSalon() {
