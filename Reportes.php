@@ -1,3 +1,4 @@
+<?php require 'mapaComun.php'; ?>
 <html>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" type="text/css">
@@ -33,32 +34,40 @@
                                 Opciones
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <form action="Reportes.php" method="post" id="formaReportes">
+                                <form action="Reportes.php" method="post" id="formaReportes1">
                                     <div>
                                         <input type="hidden" name="reporte" value="listaSalonesDisponibles">
-                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes').submit();">Lista de Salones Disponibles</a>
-                                    </div>
-                                    <div>
-                                        <input type="hidden" name="reporte" value="listaSalonesEnUso">
-                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes').submit();">Lista de Salones en Uso</a>
-                                    </div>
-                                    <div>
-                                        <input type="hidden" name="reporte" value="listaProgramas">
-                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes').submit();">Lista de Programas</a>
+                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes1').submit();">Lista de Salones Disponibles</a>
                                     </div>
                                 </form>
-                                <form action="FormularioReportes.php" method="post" id="formaReportes1">
+                                <form action="Reportes.php" method="post" id="formaReportes2">
                                     <div>
-                                        <input type="hidden" name="reporte" value="salonesPorPrograma">
-                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes1').submit();">Salones usados por un Programa</a>
+                                        <input type="hidden" name="reporte" value="listaSalonesEnUso">
+                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes2').submit();">Lista de Salones en Uso</a>
                                     </div>
+                                </form>
+                                <form action="Reportes.php" method="post" id="formaReportes3">
                                     <div>
-                                        <input type="hidden" name="reporte" value="ProgramasPorNumEstudiantes">
-                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes1').submit();">Lista de Programas por Cantidad de Estudiantes</a>
+                                        <input type="hidden" name="reporte" value="listaProgramas">
+                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes3').submit();">Lista de Programas</a>
                                     </div>
+                                </form>
+                                <form action="FormularioReportes.php" method="post" id="formaReportes4">
                                     <div>
-                                        <input type="hidden" name="reporte" value="programasPorGrupo">
-                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes1').submit();">Lista de Programas por Grupos (Periodo)</a>
+                                        <input type="hidden" name="reporte1" value="salonesPorPrograma">
+                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes4').submit();">Salones usados por un Programa</a>
+                                    </div>
+                                </form>
+                                <form action="FormularioReportes.php" method="post" id="formaReportes5">
+                                    <div>
+                                        <input type="hidden" name="reporte2" value="ProgramasPorNumEstudiantes">
+                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes5').submit();">Lista de Programas por Cantidad de Estudiantes</a>
+                                    </div>
+                                </form>
+                                <form action="FormularioReportes.php" method="post" id="formaReportes6">
+                                    <div>
+                                        <input type="hidden" name="reporte3" value="programasPorGrupo">
+                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes6').submit();">Lista de Programas por Grupos (Periodo)</a>
                                     </div>
                                 </form>
                                 <div class="dropdown-divider"></div>    
@@ -83,3 +92,30 @@
             </div>
         </nav>
     </header>
+
+    <?php
+if (isset($_POST["reporte"])) {
+        switch ($_POST["reporte"]) {
+            case "listaSalonesDisponibles":
+                $mapa->reporteListaSalonesDisponibles();
+
+                break;
+            case "listaSalonesEnUso":
+                $mapa->reporteListaSalonesEnUso();
+                break;
+            case"listaProgramas":
+
+                $mapa->reporteListaGrupos();
+                break;
+
+
+            default:
+
+                break;
+        }
+    }
+    ?>
+    
+    
+</body>
+</html>

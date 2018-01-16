@@ -28,14 +28,14 @@ class Mapa {
         $query = "Select * from grupos order by idGrupo desc limit 1";
         $res = $this->conn->query($query);
         $rows = $res->num_rows;
-        if ($rows!=0) {
+        if ($rows != 0) {
             $grupo = mysqli_fetch_object($res);
-            return $grupo->idGrupo+1;
-        }else{
+            return $grupo->idGrupo + 1;
+        } else {
             return 1;
         }
     }
-    
+
     /*
      * retorna el id para el grupo nuevo
      */
@@ -44,10 +44,10 @@ class Mapa {
         $query = "Select * from salones order by idSalon desc limit 1";
         $res = $this->conn->query($query);
         $rows = $res->num_rows;
-        if ($rows!=0) {
+        if ($rows != 0) {
             $salon = mysqli_fetch_object($res);
-            return $salon->idSalon+1;
-        }else{
+            return $salon->idSalon + 1;
+        } else {
             return 1;
         }
     }
@@ -110,7 +110,7 @@ class Mapa {
             $info = "'" . $info . "'";
         }
         $editarSalon = "UPDATE `salones` SET `numero` = '$numero',`capacidad` = $capacidad,"
-                ." `info` = $info WHERE `salones`.`idSalon` = $idSalon";
+                . " `info` = $info WHERE `salones`.`idSalon` = $idSalon";
         $this->conn->query($editarSalon);
     }
 
@@ -696,8 +696,70 @@ class Mapa {
         echo $this->aviso;
     }
 
-    public function cerrarConexion() {
-        mysqli_close($this->conn);
+    public function reporteListaGrupos() {
+        $grupos = $this->listarGrupos();
+        $lista1 = "<ul class='list-group'>"
+                
+                . "<form action='editarGrupos.php' method='post' id='editarGrupos'>";
+        echo $lista1;
+        foreach ($grupos as $grupo) {
+            $idGrupo=$grupo->getIdGrupo();
+            $item = "<li class='list-group-item d-flex justify-content-between'>"
+                    . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
+                    . "<input type='hidden' name='editar' value='$idGrupo'><a href='javascript:{}' "
+                    . 'onclick= "document.getElementById'
+                    . "('editarGrupos')"
+                    . '.submit();"'
+                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>";
+        echo $item;
+            
+        }
+        $lista2 = "</form>"
+                . "</ul>";
+        echo $lista2;
     }
 
+        public function reporteListaSalonesDisponibles() {
+        $salones = $this->salonesDisponibles();
+        $lista1 = "<ul class='list-group'>"
+                . "<form action='editarSalones.php' method='post' id='editarSalones'>";
+        echo $lista1;
+        foreach ($salones as $salon) {
+            $idSalon=$salon->getIdSalon();
+             $item = "<li class='list-group-item d-flex justify-content-between'>"
+                    . $idSalon . '. ' . $salon->getNumero() 
+                    . "<input type='hidden' name='editar' value='$idSalon'><a href='javascript:{}' "
+                    . 'onclick= "document.getElementById'
+                    . "('editarSalones')"
+                    . '.submit();"'
+                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>";
+        echo $item;
+            
+        }
+        $lista2 = "</form>"
+                . "</ul>";
+        echo $lista2;
+    }
+    
+        public function reporteListaSalonesEnUso() {
+        $salones = $this->salonesOcupados();
+        $lista1 = "<ul class='list-group'>"
+                . "<form action='editarSalones.php' method='post' id='editarSalones'>";
+        echo $lista1;
+        foreach ($salones as $salon) {
+            $idSalon=$salon->getIdSalon();
+            $item = "<li class='list-group-item d-flex justify-content-between'>"
+                    . $idSalon . '. ' . $salon->getNumero() 
+                    . "<input type='hidden' name='editar' value='$idSalon'><a href='javascript:{}' "
+                    . 'onclick= "document.getElementById'
+                    . "('editarSalones')"
+                    . '.submit();"'
+                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>";
+        echo $item;
+            
+        }
+        $lista2 = "</form>"
+                . "</ul>";
+        echo $lista2;
+    }
 }
