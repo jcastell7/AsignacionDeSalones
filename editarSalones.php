@@ -9,7 +9,7 @@ if (isset($_SESSION["recargaSalones"])) {
     $_SESSION["recargaSalones"] = 0;
 }
 $idSalon = $_POST["editar"];
-$salon=$mapa->getSalon($idSalon);
+$salon = $mapa->getSalon($idSalon);
 ?>
 <html>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" type="text/css">
@@ -49,6 +49,12 @@ $salon=$mapa->getSalon($idSalon);
                                 Opciones
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <form action="Reportes.php" method="post" id="formaReportes0">
+                                    <div>
+                                        <input type="hidden" name="reporte" value="listaSalones">
+                                        <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes0').submit();">Lista de Salones</a>
+                                    </div>
+                                </form>
                                 <form action="Reportes.php" method="post" id="formaReportes1">
                                     <div>
                                         <input type="hidden" name="reporte" value="listaSalonesDisponibles">

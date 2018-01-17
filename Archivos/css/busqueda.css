@@ -1,0 +1,107 @@
+/* this declares a better box model */
+* { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
+
+
+.list-wrap label {
+  float:left;
+  color:#00BDE8;
+}
+.search-box {
+  float:left;
+  clear:left;
+  width:70%;
+  padding:0.4em;
+  font-size:1em;
+  color:#555;
+}
+
+.list-count {
+  float:left;
+  text-align:center;
+  width:30%;
+  color:#ddd;
+}
+
+
+
+li {
+  transition-property: margin, background-color, border-color;
+  transition-duration: .4s, .2s, .2s;
+  transition-timing-function: ease-in-out, ease, ease;
+}
+
+.empty-item {
+  transition-property: opacity;
+  transition-duration: 0s;
+  transition-delay: 0s;
+  transition-timing-function: ease;
+}
+
+.empty .empty-item {
+  transition-property: opacity;
+  transition-duration: .2s;
+  transition-delay: .3s;
+  transition-timing-function: ease;
+}
+
+.hiding {
+  margin-left:-100%;
+  opacity:0.5;
+}
+
+.hidden {
+  display:none;
+}
+
+ul {
+  float:left;
+  width:100%;
+  padding:0;
+  position:relative;
+}
+
+ul:before {
+  content:'desserts';
+  position:absolute;
+  left:-2.8em;
+  font-size:3em;
+  text-align:right;
+  top:1.5em;
+  color:#ededed;
+  font-weight:bold;
+  font-family: 'Maven Pro', sans-serif;
+  transform:rotate(-90deg);
+}
+
+li {
+  float:left;
+  clear:left;
+  background-color:#f2f2f2;
+  cursor:pointer;
+  color:#333;
+  position:relative;
+  
+}
+
+li:hover {
+  background-color:#f9f9f9;
+  border-color:#00BDE8;
+}
+
+.empty-item {
+  background:#fff;
+  color:#ddd;
+  font-style:italic;
+  border:none;
+  text-align:center;
+  visibility:hidden;
+  opacity:0;
+  float:left;
+  clear:left;
+}
+
+.empty .empty-item {
+  opacity:1;
+  visibility:visible;
+}

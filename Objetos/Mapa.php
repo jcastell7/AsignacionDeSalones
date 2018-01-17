@@ -63,13 +63,15 @@ class Mapa {
         $salon = new Salon($object->numero, $object->capacidad, $object->idSalon, $object->info);
         return $salon;
     }
-    
+
     /*
      * metodo publico que retorna el objeto salon
      */
+
     public function getSalon($idSalon) {
         return $this->convertirSqlObjetoSalon($idSalon);
     }
+
     /*
      * crea un nuevo salon, recibe el numero del salon , la capacidad,  la informacion (puede dejarse vacio)
      * lueog llama el metodo de agregar a la base de datos y lo almacena.
@@ -135,10 +137,11 @@ class Mapa {
     /*
      * metodo publico que retorna un objeto grupo
      */
+
     public function getGrupo($idGrupo) {
         return $this->convertirSqlObjetoGrupo($idGrupo);
     }
-    
+
     /*
      * crea un nuevo objeto grupo y luego llama el metodo de agregar grupos 
      * y actualiza la base de datos
@@ -712,20 +715,26 @@ class Mapa {
 
     public function reporteListaGrupos() {
         $grupos = $this->listarGrupos();
-        $lista1 = "<ul class='list-group'>";
+        $lista1 = "<ul id='list' class='list-group'>";
         echo $lista1;
-        foreach ($grupos as $grupo) {
-            $idGrupo = $grupo->getIdGrupo();
-            $item = "<form action='editarGrupos.php' method='post' id='editarGrupos.$idGrupo'>"
-                    . "<li class='list-group-item d-flex justify-content-between'>"
-                    . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
-                    . "<input type='hidden' name='editar' value='$idGrupo'><a href='javascript:{}' "
-                    . 'onclick= "document.getElementById'
-                    . "('editarGrupos.$idGrupo')"
-                    . '.submit();"'
-                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>"
-                    . "</form>";
-            echo $item;
+        if (is_array($grupos)) {
+            foreach ($grupos as $grupo) {
+                $idGrupo = $grupo->getIdGrupo();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
+                        . "<form action='editarGrupos.php' method='post' id='editarGrupos.$idGrupo'>"
+                        . "<input type='hidden' name='editar' value='$idGrupo'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarGrupos.$idGrupo')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+
+                echo $item;
+            }
+        } else {
+            echo "no hay grupos por mostrar";
         }
         $lista2 = "</ul>";
         echo $lista2;
@@ -733,47 +742,78 @@ class Mapa {
 
     public function reporteListaSalonesDisponibles() {
         $salones = $this->salonesDisponibles();
-        $lista1 = "<ul class='list-group'>";
-             
+        $lista1 = "<ul id='list' class='list-group'>";
+
         echo $lista1;
         if (is_array($salones)) {
             foreach ($salones as $salon) {
                 $idSalon = $salon->getIdSalon();
-                $item = "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
-                        . "<li class='list-group-item d-flex justify-content-between'>"
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
                         . $idSalon . '. ' . $salon->getNumero()
-                        . "<input type='hidden' name='editar' value='$idSalon'><a href='javascript:{}' "
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
                         . 'onclick= "document.getElementById'
                         . "('editarSalones.$idSalon')"
                         . '.submit();"'
-                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>"
-                        . "</form>";
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
                 echo $item;
             }
-        }else{
+        } else {
             echo $salones;
         }
-        
+
         $lista2 = "</ul>";
         echo $lista2;
     }
 
     public function reporteListaSalonesEnUso() {
         $salones = $this->salonesOcupados();
-        $lista1 = "<ul class='list-group'>";
+        $lista1 = "<ul id='list' class='list-group'>";
         echo $lista1;
-        foreach ($salones as $salon) {
-            $idSalon = $salon->getIdSalon();
-            $item = "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
-                    . "<li class='list-group-item d-flex justify-content-between'>"
-                    . $idSalon . '. ' . $salon->getNumero()
-                    . "<input type='hidden' name='editar' value='$idSalon'><a href='javascript:{}' "
-                    . 'onclick= "document.getElementById'
-                    . "('editarSalones.$idSalon')"
-                    . '.submit();"'
-                    . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></li>"
-                    . "</form>";
-            echo $item;
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+                echo $item;
+            }
+        } else {
+            echo "No hay salones En Uso";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+    public function reporteListaSalones() {
+        $salones = $this->listaSalones();
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+                echo $item;
+            }
+        } else {
+            echo "No hay salones En Uso";
         }
         $lista2 = "</ul>";
         echo $lista2;

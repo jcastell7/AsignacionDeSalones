@@ -48,6 +48,12 @@ else{
                                 Opciones
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                                    <form action="Reportes.php" method="post" id="formaReportes0">
+                                        <div>
+                                            <input type="hidden" name="reporte" value="listaSalones">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes0').submit();">Lista de Salones</a>
+                                        </div>
+                                    </form>
                                 <form action="Reportes.php" method="post" id="formaReportes1">
                                     <div>
                                         <input type="hidden" name="reporte" value="listaSalonesDisponibles">

@@ -1,18 +1,22 @@
-<?php require 'mapaComun.php'; ?>
+<?php require 'mapaComun.php'; 
+ session_start();
+?>
 <html>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" type="text/css">
+    <link rel="stylesheet" href="Archivos/css/busqueda.css"/>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" type="text/javascript"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
     <style>
         .myDate{
             margin: 10px 0 10px 0;	
         }
     </style>
     <title>Agregar Grupo</title>
-
+   
 </head>
 <body>
     <header>
@@ -34,6 +38,12 @@
                                 Opciones
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                                    <form action="Reportes.php" method="post" id="formaReportes0">
+                                        <div>
+                                            <input type="hidden" name="reporte" value="listaSalones">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes0').submit();">Lista de Salones</a>
+                                        </div>
+                                    </form>
                                 <form action="Reportes.php" method="post" id="formaReportes1">
                                     <div>
                                         <input type="hidden" name="reporte" value="listaSalonesDisponibles">
@@ -84,9 +94,9 @@
                         <li class="nav-item active pr-2">
                             <a class="nav-link " href="#">Lista de Grupos <span class="sr-only">(current)</span></a>
                         </li>
-                        <li class="nav-item active pr-2">
-                            <a class="nav-link" href="#">Cerrar Sesion <span class="sr-only">(current)</span></a>
-                        </li>
+                            <div class="form-inline my-2 my-lg-0" >
+                                <input id="search-text" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                            </div>
                     </ul>
                 </div>      
             </div>
@@ -96,6 +106,9 @@
     <?php
 if (isset($_POST["reporte"])) {
         switch ($_POST["reporte"]) {
+            case "listaSalones":
+                $mapa->reporteListaSalones();
+                break;
             case "listaSalonesDisponibles":
                 $mapa->reporteListaSalonesDisponibles();
 
@@ -118,4 +131,7 @@ if (isset($_POST["reporte"])) {
     
     
 </body>
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
+<script src="Archivos/js/busqueda.js"></script>
 </html>
