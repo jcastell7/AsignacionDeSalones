@@ -11,78 +11,6 @@ if (!isset($_SESSION["recargaSalones"]) || $_SESSION["recargaSalones"] == 0) {
 } else {
     $_SESSION["recargaSalones"] ++;
 }
-
-if (isset($_SERVER['HTTP_REFERER'])) {
-    $url = $_SERVER['HTTP_REFERER'];
-    if ($url == "http://localhost/asignaciondesalones/formularioGrupos.php") {
-        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
-            $idGrupo = $mapa->getIdGrupo();
-            $tipoPrograma = $_POST["tipoPrograma"];
-            $programa = $_POST["nombrePrograma"];
-            $periodo = $_POST["periodo"];
-            $numEstudiantes = $_POST["numEstudiantes"];
-            $fechaFinalizacion = $_POST["fechaFinalizacion"];
-            if (!empty($_POST["info"])) {
-                $info = $_POST["info"];
-            } else {
-                $info = null;
-            }
-            if (!empty($_POST["semestre"])) {
-                $semestre = $_POST["semestre"];
-            } else {
-                $semestre = null;
-            }
-            $mapa->crearGrupo($idGrupo, $tipoPrograma, $programa, $periodo, $numEstudiantes, $fechaFinalizacion, $info, $semestre);
-        }
-    } else if ($url == "http://localhost/asignaciondesalones/formularioSalones.php") {
-        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaSalones"] == 1) {
-            $idSalon = $mapa->getIdSalon();
-            $numeroSalon = $_POST["numeroSalon"];
-            $capacidad = $_POST["capacidad"];
-            if (!empty($_POST["info"])) {
-                $info = $_POST["info"];
-            } else {
-                $info = null;
-            }
-            $mapa->crearSalon($idSalon, $numeroSalon, $capacidad, $info);
-        }
-    } else if ($url == "http://localhost/asignaciondesalones/editarSalones.php") {
-        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaSalones"] == 1) {
-            $idSalon = $_POST["id"];
-            $numeroSalon = $_POST["numeroSalon"];
-            $capacidad = $_POST["capacidad"];
-            if (!empty($_POST["info"])) {
-                $info = $_POST["info"];
-            } else {
-                $info = null;
-            }
-            $salon = new salon($numeroSalon, $capacidad, $idSalon, $info);
-            $mapa->modificarSalon($salon);
-        }
-    } else if ($url == "http://localhost/asignaciondesalones/editarGrupos.php") {
-        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
-            $idGrupo = $_POST["id"];
-            $tipoPrograma = $_POST["tipoPrograma"];
-            $programa = $_POST["nombrePrograma"];
-            $periodo = $_POST["periodo"];
-            $numEstudiantes = $_POST["numEstudiantes"];
-            $fechaFinalizacion = $_POST["fechaFinalizacion"];
-            if (!empty($_POST["info"])) {
-                $info = $_POST["info"];
-            } else {
-                $info = null;
-            }
-            if (!empty($_POST["semestre"])) {
-                $semestre = $_POST["semestre"];
-            } else {
-                $semestre = null;
-            }
-            $salonId = $mapa->getGrupo($idGrupo)->getSalonId();
-            $grupo = new Grupos($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info, $semestre, $idGrupo, $salonId);
-            $mapa->modificarGrupos($grupo);
-        }
-    }
-}
 ?>
 <!DOCTYPE html> 
 <html>
@@ -94,30 +22,133 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         <link rel='stylesheet prefetch' href='https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css'>
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" type="text/css">
         <link rel="stylesheet" href="Archivos/css/style.css"/>
+        <script src="https://use.fontawesome.com/cb924b6daa.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
         <script src="Archivos/js/alerts.js"></script>
+
+        <title>Asignacion de Salones</title>
+    </head>
+    <body >
+        <?php
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $url = $_SERVER['HTTP_REFERER'];
+            if ($url == "http://localhost/asignaciondesalones/formularioGrupos.php") {
+                if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
+                    $idGrupo = $mapa->getIdGrupo();
+                    $tipoPrograma = $_POST["tipoPrograma"];
+                    $programa = $_POST["nombrePrograma"];
+                    $periodo = $_POST["periodo"];
+                    $numEstudiantes = $_POST["numEstudiantes"];
+                    $fechaFinalizacion = $_POST["fechaFinalizacion"];
+                    if (!empty($_POST["info"])) {
+                        $info = $_POST["info"];
+                    } else {
+                        $info = null;
+                    }
+                    if (!empty($_POST["semestre"])) {
+                        $semestre = $_POST["semestre"];
+                    } else {
+                        $semestre = null;
+                    }
+                    $mapa->crearGrupo($idGrupo, $tipoPrograma, $programa, $periodo, $numEstudiantes, $fechaFinalizacion, $info, $semestre);
+                }
+            } else if ($url == "http://localhost/asignaciondesalones/formularioSalones.php") {
+                if (!isset($_POST["botonInicio"]) && $_SESSION["recargaSalones"] == 1) {
+                    $idSalon = $mapa->getIdSalon();
+                    $numeroSalon = $_POST["numeroSalon"];
+                    $capacidad = $_POST["capacidad"];
+                    if (!empty($_POST["info"])) {
+                        $info = $_POST["info"];
+                    } else {
+                        $info = null;
+                    }
+                    $mapa->crearSalon($idSalon, $numeroSalon, $capacidad, $info);
+                }
+            } else if ($url == "http://localhost/asignaciondesalones/editarSalones.php") {
+                if (!isset($_POST["botonInicio"]) && $_SESSION["recargaSalones"] == 1) {
+                    $idSalon = $_POST["id"];
+                    $numeroSalon = $_POST["numeroSalon"];
+                    $capacidad = $_POST["capacidad"];
+                    if (!empty($_POST["info"])) {
+                        $info = $_POST["info"];
+                    } else {
+                        $info = null;
+                    }
+                    $salon = new salon($numeroSalon, $capacidad, $idSalon, $info);
+                    $mapa->modificarSalon($salon);
+                }
+            } else if ($url == "http://localhost/asignaciondesalones/editarGrupos.php") {
+                if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
+                    $idGrupo = $_POST["id"];
+                    $tipoPrograma = $_POST["tipoPrograma"];
+                    $programa = $_POST["nombrePrograma"];
+                    $periodo = $_POST["periodo"];
+                    $numEstudiantes = $_POST["numEstudiantes"];
+                    $fechaFinalizacion = $_POST["fechaFinalizacion"];
+                    if (!empty($_POST["info"])) {
+                        $info = $_POST["info"];
+                    } else {
+                        $info = null;
+                    }
+                    if (!empty($_POST["semestre"])) {
+                        $semestre = $_POST["semestre"];
+                    } else {
+                        $semestre = null;
+                    }
+                    $salonId = $mapa->getGrupo($idGrupo)->getSalonId();
+                    $grupo = new Grupos($periodo, $programa, $tipoPrograma, $numEstudiantes, $fechaFinalizacion, $info, $semestre, $idGrupo, $salonId);
+                    $mapa->modificarGrupos($grupo);
+                }
+            } else if ($url = "http://localhost/asignaciondesalones/Reportes.php") {
+                if (isset($_POST["eliminar"])) {
+                    if ($_POST["eliminar"] == "grupos") {
+                        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
+                            $idGrupo = $_POST["idGrupo"];
+                            if ($mapa->eliminarGrupoID($idGrupo)) {
+                                $mapa->llenarSalonesIndex();
+                                echo'<script>$(document).ready(Alert.error("ha eliminado un grupo satisfactoriamente","ELIMINADO",{displayDuration: 0}));</script>';
+                            } else {
+                                echo'<script>$(document).ready(Alert.warning("No pudo ser eliminado", "Error"););</script>';
+                            }
+                        }
+                    } else if ($_POST["eliminar"] == "salones") {
+                        if (!isset($_POST["botonInicio"]) && $_SESSION["recargaGrupos"] == 1) {
+                            $idSalon = $_POST["idSalon"];
+                            if ($mapa->eliminarSalon($idSalon)) {
+                                $mapa->llenarSalonesIndex();
+                                echo'<script>$(document).ready(Alert.error("ha eliminado un salon satisfactoriamente","ELIMINADO",{displayDuration: 0}));</script>';
+                            } else {
+                                echo'<script>$(document).ready(Alert.warning("No pudo ser eliminado", "Error"););</script>';
+                            }
+                        }
+                    }
+                }
+            }if (isset($_POST["idSalon"])) {
+                $idSalon = $_POST["idSalon"];
+                $mapa->sacarGruposSalon($idSalon);
+            }
+        }
+        ?>
         <script>
-            function recargarTarjetas() {<?php
-if (isset($_POST['submit'])) {
-    $mapa->cambiarGrupos();
-}
-?>
+
+            function recargarTarjetas() {
+                <?php
+        if (isset($_POST['submit'])) {
+            $mapa->cambiarGrupos();
+        }
+        ?>
             }
             function llenarTarjetas() {
+
 <?php $mapa->sobrecupo(); ?>
                 $("#tarjetas").append("<?php $mapa->llenarSalonesIndex(); ?>")
             }
 
         </script>
-
-
-        <title>Asignacion de Salones</title>
-    </head>
-    <body>
         <header>
             <nav class="d-flex navbar navbar-expand-lg navbar-light bg-light justify-content-between">
                 <div >
@@ -130,7 +161,10 @@ if (isset($_POST['submit'])) {
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ">
                             <li class="nav-item active pr-2">
-                                <a class="nav-link" href="index.php">Inicio <span class="sr-only">(current)</span></a>
+                                <form action="index.php" method="post" id="botonInicio">
+                                    <input type="hidden" name="botonInicio" value="inicio">
+                                    <a class="nav-link" href="javascript:{}" onclick="document.getElementById('botonInicio').submit();">Inicio <span class="sr-only">(current)</span></a>
+                                </form>
                             </li>
                             <li class="nav-item dropdown pr-2">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -164,19 +198,19 @@ if (isset($_POST['submit'])) {
                                     </form>
                                     <form action="FormularioReportes.php" method="post" id="formaReportes4">
                                         <div>
-                                            <input type="hidden" name="reporte1" value="salonesPorPrograma">
+                                            <input type="hidden" name="reporte" value="salonesPorPrograma">
                                             <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes4').submit();">Salones usados por un Programa</a>
                                         </div>
                                     </form>
                                     <form action="FormularioReportes.php" method="post" id="formaReportes5">
                                         <div>
-                                            <input type="hidden" name="reporte2" value="ProgramasPorNumEstudiantes">
-                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes5').submit();">Lista de Programas por Cantidad de Estudiantes</a>
+                                            <input type="hidden" name="reporte" value="salonesPorNumEstudiantes">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes5').submit();">Lista de Salones por Cantidad de Estudiantes</a>
                                         </div>
                                     </form>
                                     <form action="FormularioReportes.php" method="post" id="formaReportes6">
                                         <div>
-                                            <input type="hidden" name="reporte3" value="programasPorGrupo">
+                                            <input type="hidden" name="reporte" value="programasPorGrupo">
                                             <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes6').submit();">Lista de Programas por Grupos (Periodo)</a>
                                         </div>
                                     </form>
@@ -184,11 +218,18 @@ if (isset($_POST['submit'])) {
                                     <a class="dropdown-item" href="formularioSalones.php">Agregar Salon</a>
                                     <a class="dropdown-item" href="formularioGrupos.php">Agregar Grupo</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">Editar Salon</a>
-                                    <a class="dropdown-item" href="#">Editar Grupo</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="#">Eliminar Salon</a>
-                                    <a class="dropdown-item" href="#">Eliminar Grupo</a>
+                                    <form action="Reportes.php" method="post" id="formaReportes7">
+                                        <div>
+                                            <input type="hidden" name="reporte" value="eliminarSalon">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes7').submit();">Eliminar Salon</a>
+                                        </div>
+                                    </form>
+                                    <form action="Reportes.php" method="post" id="formaReportes8">
+                                        <div>
+                                            <input type="hidden" name="reporte" value="eliminarGrupos">
+                                            <a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('formaReportes8').submit();">Eliminar Grupo</a>
+                                        </div>
+                                    </form>
                                 </div>
                             </li>
                             <li class="nav-item active pr-2">

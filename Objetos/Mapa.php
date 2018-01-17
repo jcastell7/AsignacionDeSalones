@@ -233,13 +233,13 @@ class Mapa {
      * recibe el nombre del programa que se quiere eliminar
      */
 
-    private function eliminarGrupoID($idGrupo) {
+    public function eliminarGrupoID($idGrupo) {
         $eliminarGrupo = "DELETE FROM `grupos` WHERE `grupos`.`idGrupo` = $idGrupo;";
         $resultado = $this->conn->query($eliminarGrupo);
         if (!$resultado) {
-            return "no se pudo eliminar el grupo";
+            return false;
         } else {
-            return "eliminado correctamente";
+            return true;
         }
     }
 
@@ -248,13 +248,13 @@ class Mapa {
      * recibe el numero del salon a eliminar
      */
 
-    private function eliminarSalon($idSalon) {
+    public function eliminarSalon($idSalon) {
         $eliminarSalon = "DELETE FROM `salones` WHERE `salones`.`idSalon` = $idSalon";
         $resultado = $this->conn->query($eliminarSalon);
         if (!$resultado) {
-            return "no se pudo eliminar el salon";
+            return false;
         } else {
-            return "eliminado correctamente";
+            return true;
         }
     }
 
@@ -388,23 +388,6 @@ class Mapa {
     }
 
     /*
-     * retorna una tabla de los salones que esta utilizando un grupo
-     * recibe el nombre del programa
-     */
-
-    public function salonesPorPrograma($programa) {
-        $res = array();
-        foreach ($this->salonesConGrupo as $salon => $grupos) {
-            foreach ($grupos as $clase) {
-                if ($clase->getPrograma() === $programa) {
-                    array_push($res, $salon);
-                }
-            }
-        }
-        return $res;
-    }
-
-    /*
      * recibe una cadena de query y retorna un array con los resultados
      * si no se encuentra nada retorna un aviso de no resultados.
      * funciona solo para los query que retornan salones
@@ -450,6 +433,487 @@ class Mapa {
             return $respuesta;
         }
         return "no hubo resultados";
+    }
+
+    /*
+     * crea y llena las tarjetas de los salones
+     */
+
+    public function llenarSalonesIndex() {
+
+        $salones = $this->listaSalones();
+        foreach ($salones as $salon) {
+            $numSalon = $salon->getNumero();
+            $idSalon = $salon->getIdSalon();
+            $numCuposSalon = $salon->getCapacidad();
+            $cuerpoTarjeta = $this->llenarGruposIndex($salon->getIdSalon());
+            $listaGrupos = $this->llenarListaGrupos();
+            $tarjetaSalon = "<div id='tarjeta.$idSalon' class='card text-white bg-dark mb-3' style='max-width: 20rem;'>" .
+                    "<div class='card-header '>" .
+                    "<div class='d-flex justify-content-between'>" .
+                    "<div>" . "<form action='index.php' method='post' class='form-inline' id='sacarGrupos.$idSalon' >" . $numSalon
+                    . "<input type='hidden' name='idSalon' value='$idSalon'>"
+                    . "<button type=submit class='btn btn-primary'><i class='fa fa-sign-out' aria-hidden='true'></i></button>"
+                    . "</form></div>"
+                    . "<div class='dropdown show'>" .
+                    "<a class='btn btn-secondary dropdown-toggle ' href='' role='button' id='dropdownMenuLink' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></a>" .
+                    "<div class='dropdown-menu'  aria-labelledby='dropdownMenuLink'>" .
+                    "<form action='' method='post'>" .
+                    "<input type='hidden' value='$idSalon' name='idSalon'>" .
+                    "<div class='menuGrupo'>" . $listaGrupos . "</div>" .
+                    "<div class='dropdown-divider'></div>" .
+                    "<div><input class='dropdown-item' href='' onclick='recargarTarjetas();' type='submit' name='submit' value ='Aceptar'/></div>" .
+                    "</form>" .
+                    "</div>" .
+                    "</div>" .
+                    "</div>" .
+                    "</div>" .
+                    "<div id='bodyTarjeta.$idSalon' class='card-body'>" .
+                    $cuerpoTarjeta
+                    . "</div>" .
+                    "<div class='card-footer text-muted' id='pieTarjeta'>" .
+                    "Cantidad de puestos en Salon: " . $numCuposSalon .
+                    "</div>" .
+                    "</div>" .
+                    "<br/>";
+
+            echo $tarjetaSalon;
+        }
+    }
+
+    /*
+     * muestra que grupos estan en que salones
+     */
+
+    private function llenarGruposIndex($idSalon) {
+        $gruposConSalon = $this->gruposConSalon();
+        $respuesta = "";
+        foreach ($gruposConSalon as $grupos) {
+            if ($grupos->getSalonId() === $idSalon) {
+                $grupo1 = $grupos->getPrograma();
+                $tipoPrograma = $grupos->getTipoPrograma();
+                $programa = $grupos->getPrograma();
+                $numEstudiantes = $grupos->getNumEstudiantes();
+                $periodo = $grupos->getPeriodo();
+                $respuesta = "<h5 class='card-title'>" . $grupo1 . "</h5>" .
+                        "<p class='card-text'>" .
+                        $tipoPrograma . " en " . $programa . "<br>" . " #est."
+                        . $numEstudiantes . "<br>" .
+                        "periodo: " . $periodo .
+                        "</p>" . $respuesta;
+            }
+        }
+        return $respuesta;
+    }
+
+    /*
+     * llena el dropdown de las tarjetas con los grupos
+     */
+
+    private function llenarListaGrupos() {
+        $respuesta = "";
+        $listaGrupos = $this->listarGrupos();
+        foreach ($listaGrupos as $grupo) {
+            $programa = $grupo->getPrograma();
+            $idGrupo = $grupo->getIdGrupo();
+            $respuesta = "<a class='dropdown-item' href=''><input type='checkbox' name='check_list[]' value='$idGrupo'/>$programa</a>" . $respuesta;
+        }
+        return $respuesta;
+    }
+
+    /*
+     * 
+     */
+
+    public function cantidadEstudiantesEnSalon($idSalon) {
+        $contador = 0;
+        $gruposConSalon = $this->gruposConSalon();
+        foreach ($gruposConSalon as $grupos) {
+            if ($grupos->getSalonId() === $idSalon) {
+                $contador += $grupos->getNumEstudiantes();
+            }
+        }
+        return $contador;
+    }
+
+    /*
+     * saca todos los grupos del salon seleccionado
+     */
+
+    public function sacarGruposSalon($idSalon) {
+        $gruposConSalon = $this->gruposConSalon();
+        foreach ($gruposConSalon as $key => $grupo) {
+            if ($grupo->getSalonId() === $idSalon) {
+                $grupo->setSalonId(null);
+                $this->modificarGrupos($grupo);
+            } else {
+                unset($gruposConSalon[$key]);
+            }
+        }
+    }
+
+    /*
+     * recibe los grupos seleccionados y los pone en el salon del que se esta
+     * llamando el submit
+     */
+
+    public function cambiarGrupos() {
+        $idSalon = $_POST['idSalon'];
+        $arrayGrupos = array();
+        $contador = $this->cantidadEstudiantesEnSalon($idSalon);
+        $salon = $this->convertirSqlObjetoSalon($idSalon);
+        $aviso = "";
+        if (!empty($_POST['check_list'])) {
+            foreach ($_POST['check_list'] as $selected) {
+                $idGrupo = $selected;
+                $grupo = $this->convertirSqlObjetoGrupo($idGrupo);
+                $contador += $grupo->getNumEstudiantes();
+                $capacidad = $salon->getCapacidad();
+                if ($contador <= $capacidad) {
+                    array_push($arrayGrupos, $grupo);
+                } else {
+                    $this->aviso = "Alert.warning('No es posible asignar este grupo a este salon debido a las limitaciones de espacio fisico','La capacidad del salon es de " . $capacidad . " personas');";
+                }
+            }
+        }
+        $this->ingresarGrupoASalon($arrayGrupos, $idSalon);
+        $cuerpo = $this->llenarGruposIndex($idSalon);
+        echo $aviso;
+    }
+
+    public function sobrecupo() {
+        echo $this->aviso;
+    }
+
+    public function reporteListaGrupos() {
+        $grupos = $this->listarGrupos();
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($grupos)) {
+            foreach ($grupos as $grupo) {
+                $idGrupo = $grupo->getIdGrupo();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
+                        . "<form action='editarGrupos.php' method='post' id='editarGrupos.$idGrupo'>"
+                        . "<input type='hidden' name='editar' value='$idGrupo'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarGrupos.$idGrupo')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+
+                echo $item;
+            }
+        } else {
+            echo "no hay grupos por mostrar";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    public function reporteListaGruposELIMINAR() {
+        $grupos = $this->listarGrupos();
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($grupos)) {
+            foreach ($grupos as $grupo) {
+                $idGrupo = $grupo->getIdGrupo();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
+                        . "<form action='index.php' method='post' id='editarGrupos.$idGrupo'>"
+                        . "<input type='hidden' name='idGrupo' value='$idGrupo'>"
+                        . "<input type='hidden' name='eliminar' value='grupos'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarGrupos.$idGrupo')"
+                        . '.submit();"'
+                        . "><i class='fa fa-trash-o' aria-hidden='true'></i></a></form></div></li>";
+                $_SESSION["url"] = "eliminarGrupos";
+                if (isset($_SESSION["recargaGrupos"])) {
+                    if ($_SESSION["recargaGrupos"] >= 1) {
+                        unset($_SESSION["recargaGrupos"]);
+                    }
+                } else {
+                    $_SESSION["recargaGrupos"] = 0;
+                }
+                echo $item;
+            }
+        } else {
+            echo "no hay grupos por mostrar";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    public function reporteListaSalonesELIMINAR() {
+        $salones = $this->listaSalones();
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='index.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='idSalon' value='$idSalon'>"
+                        . "<input type='hidden' name='eliminar' value='salones'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-trash-o' aria-hidden='true'></i></a></form></div></li>";
+                $_SESSION["url"] = "eliminarSalones";
+                if (isset($_SESSION["recargaGrupos"])) {
+                    if ($_SESSION["recargaGrupos"] >= 1) {
+                        unset($_SESSION["recargaGrupos"]);
+                    }
+                } else {
+                    $_SESSION["recargaGrupos"] = 0;
+                }
+                echo $item;
+            }
+        } else {
+            echo "No hay salones En Uso";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    public function reporteListaSalonesDisponibles() {
+        $salones = $this->salonesDisponibles();
+        $lista1 = "<ul id='list' class='list-group'>";
+
+        echo $lista1;
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+                echo $item;
+            }
+        } else {
+            echo "no hay salones disponibles por el momento";
+        }
+
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    public function reporteListaSalonesEnUso() {
+        $salones = $this->salonesOcupados();
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+                echo $item;
+            }
+        } else {
+            echo "No hay salones En Uso";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    public function reporteListaSalones() {
+        $salones = $this->listaSalones();
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+                echo $item;
+            }
+        } else {
+            echo "No hay salones En Uso";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    /*
+     * retorna una tabla de los salones que esta utilizando un grupo
+     * recibe el nombre del programa
+     */
+
+    public function salonesPorPrograma($programa) {
+        $gruposConSalon = $this->gruposConSalon();
+        foreach ($gruposConSalon as $key => $grupo) {
+            if (!similar_text($grupo->getPrograma(), $programa)) {
+                unset($gruposConSalon[$key]);
+            } else {
+                $idSalon = $grupo->getSalonId();
+                $gruposConSalon[$key] = $this->getSalon($idSalon);
+            }
+        }
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (!empty($gruposConSalon)) {
+            foreach ($gruposConSalon as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+                echo $item;
+            }
+        } else {
+            echo "No se encontraron salones con ese nombre de programa";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    /*
+     * imprime una lista de los salones con un numero de estudiantes igual o mayor al buscado
+     */
+
+    public function salonesPorCapacidad($capacidad) {
+        $query = "SELECT * FROM `salones` WHERE `capacidad` >= $capacidad;";
+        $salones = $this->query2ArraySalones($query);
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($salones)) {
+            foreach ($salones as $salon) {
+                $idSalon = $salon->getIdSalon();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idSalon . '. ' . $salon->getNumero()
+                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
+                        . "<input type='hidden' name='editar' value='$idSalon'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarSalones.$idSalon')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+                echo $item;
+            }
+        } else {
+            echo "No hay salones de este tamaño o mayores";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    /*
+     * imprime una lista de los programas por periodo
+     */
+
+    public function programasPorPeriodo($periodo) {
+        $query = "SELECT * FROM `grupos` WHERE `periodo` LIKE '$periodo';";
+        $grupos = $this->query2ArraySGrupos($query);
+        $lista1 = "<ul id='list' class='list-group'>";
+        echo $lista1;
+        if (is_array($grupos)) {
+            foreach ($grupos as $grupo) {
+                $idGrupo = $grupo->getIdGrupo();
+                $item = "<li class='in'>"
+                        . "<div class='list-group-item d-flex justify-content-between'>"
+                        . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
+                        . "<form action='editarGrupos.php' method='post' id='editarGrupos.$idGrupo'>"
+                        . "<input type='hidden' name='editar' value='$idGrupo'>"
+                        . "<a href='javascript:{}' "
+                        . 'onclick= "document.getElementById'
+                        . "('editarGrupos.$idGrupo')"
+                        . '.submit();"'
+                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
+
+                echo $item;
+            }
+        } else {
+            echo "No hay programas con ese periodo";
+        }
+        $lista2 = "</ul>";
+        echo $lista2;
+    }
+
+    //metodos para futuras actualizaciones 
+
+    /*
+     * recibe una confirmacion si se desea quitar (true) o si se desea que el grupo siga (false)
+     * y la fecha de los grupos que se desean eliminar
+     * si la confirmacion es verdadera llama el metodo limiteFechaFinalizacion($fecha)
+     */
+
+    public function confirmacionFinalizacion($confirmacion, $fecha) {
+        if ($confirmacion) {
+            $this->limiteFechaFinalizacion($fecha);
+        } else {
+            return $confirmacion;
+        }
+    }
+
+    /*
+     * quita los grupos de los salones que llegaron a la fecha de finalizacion
+     * recibe la fecha de finalizacion
+     * NO LLAMAR DIRECTAMENTE! debe ser llamado por el metodo de confirmacionFinalizacion($confirmacion,$fecha)
+     */
+
+    private function limiteFechaFinalizacion($fecha) {
+        
+    }
+
+    /*
+     * envia una notificacion con los grupos que tienen una semana para su fecha limite
+     */
+
+    public function gruposAExpirar1Sem() {
+
+        $aviso = "Alert.warning('Message','')";
+        echo$aviso;
+    }
+
+    /*
+     * envia una notificacion con los grupos que tienen tres dias para su fecha limite
+     */
+
+    public function gruposAExpirar3Dias() {
+        
+    }
+
+    /*
+     * envia una notificacion con los grupos que tienen un dia para su fecha limite
+     */
+
+    public function gruposAExpirar1Dia() {
+        
     }
 
     /*
@@ -520,303 +984,6 @@ class Mapa {
     public function programaPorGrupo($periodo) {
         $query = "SELECT * FROM `grupos` WHERE `periodo` LIKE '$periodo';";
         return $this->query2ArraySGrupos($query);
-    }
-
-    /*
-     * recibe una confirmacion si se desea quitar (true) o si se desea que el grupo siga (false)
-     * y la fecha de los grupos que se desean eliminar
-     * si la confirmacion es verdadera llama el metodo limiteFechaFinalizacion($fecha)
-     */
-
-    public function confirmacionFinalizacion($confirmacion, $fecha) {
-        if ($confirmacion) {
-            $this->limiteFechaFinalizacion($fecha);
-        } else {
-            return $confirmacion;
-        }
-    }
-
-    /*
-     * quita los grupos de los salones que llegaron a la fecha de finalizacion
-     * recibe la fecha de finalizacion
-     * NO LLAMAR DIRECTAMENTE! debe ser llamado por el metodo de confirmacionFinalizacion($confirmacion,$fecha)
-     */
-
-    private function limiteFechaFinalizacion($fecha) {
-        $grupos = array();
-        foreach ($this->grupos as $clases) {
-            if ($clases->getFechaFinalizacion() === $fecha) {
-                foreach ($this->salonesConGrupo as $salon => $grupos) {
-                    foreach ($grupos as $periodo => $clase) {
-                        if ($clase->getPrograma() === $clases) {
-                            unset($this->salonesConGrupo[$grupos[$periodo]]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * envia una notificacion con los grupos que tienen una semana para su fecha limite
-     */
-
-    public function gruposAExpirar1Sem() {
-
-        $aviso = "Alert.warning('Message','')";
-        echo$aviso;
-    }
-
-    /*
-     * envia una notificacion con los grupos que tienen tres dias para su fecha limite
-     */
-
-    public function gruposAExpirar3Dias() {
-        
-    }
-
-    /*
-     * envia una notificacion con los grupos que tienen un dia para su fecha limite
-     */
-
-    public function gruposAExpirar1Dia() {
-        
-    }
-
-    /*
-     * crea y llena las tarjetas de los salones
-     */
-
-    public function llenarSalonesIndex() {
-
-        $salones = $this->listaSalones();
-        foreach ($salones as $salon) {
-            $numSalon = $salon->getNumero();
-            $idSalon = $salon->getIdSalon();
-            $numCuposSalon = $salon->getCapacidad();
-            $cuerpoTarjeta = $this->llenarGruposIndex($salon->getIdSalon());
-            $listaGrupos = $this->llenarListaGrupos();
-            $tarjetaSalon = "<div id='tarjeta.$idSalon' class='card text-white bg-dark mb-3' style='max-width: 20rem;'>" .
-                    "<div class='card-header '>" .
-                    "<div class='d-flex justify-content-between'>" . $numSalon .
-                    "<div class='dropdown show'>" .
-                    "<a class='btn btn-secondary dropdown-toggle ' href='' role='button' id='dropdownMenuLink' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></a>" .
-                    "<div class='dropdown-menu'  aria-labelledby='dropdownMenuLink'>" .
-                    "<form action='' method='post'>" .
-                    "<input type='hidden' value='$idSalon' name='idSalon'>" .
-                    "<div class='menuGrupo'>" . $listaGrupos . "</div>" .
-                    "<div class='dropdown-divider'></div>" .
-                    "<div><input class='dropdown-item' href='' onclick='recargarTarjetas();' type='submit' name='submit' value ='Aceptar'/></div>" .
-                    "</form>" .
-                    "</div>" .
-                    "</div>" .
-                    "</div>" .
-                    "</div>" .
-                    "<div id='bodyTarjeta.$idSalon' class='card-body'>" .
-                    $cuerpoTarjeta
-                    . "</div>" .
-                    "<div class='card-footer text-muted'>" .
-                    "Cantidad de puestos en Salon: " . $numCuposSalon .
-                    "</div>" .
-                    "</div>" .
-                    "<br/>";
-
-            echo $tarjetaSalon;
-        }
-    }
-
-    /*
-     * muestra que grupos estan en que salones
-     */
-
-    private function llenarGruposIndex($idSalon) {
-        $gruposConSalon = $this->gruposConSalon();
-        $respuesta = "";
-        foreach ($gruposConSalon as $grupos) {
-            if ($grupos->getSalonId() === $idSalon) {
-                $grupo1 = $grupos->getPrograma();
-                $tipoPrograma = $grupos->getTipoPrograma();
-                $programa = $grupos->getPrograma();
-                $numEstudiantes = $grupos->getNumEstudiantes();
-                $periodo = $grupos->getPeriodo();
-                $respuesta = "<h5 class='card-title'>" . $grupo1 . "</h5>" .
-                        "<p class='card-text'>" .
-                        $tipoPrograma . " en " . $programa . "<br>" . " #est."
-                        . $numEstudiantes . "<br>" .
-                        "periodo: " . $periodo .
-                        "</p>" . $respuesta;
-            }
-        }
-        return $respuesta;
-    }
-
-    /*
-     * llena el dropdown de las tarjetas con los grupos
-     */
-
-    private function llenarListaGrupos() {
-        $respuesta = "";
-        $listaGrupos = $this->listarGrupos();
-        foreach ($listaGrupos as $grupo) {
-            $programa = $grupo->getPrograma();
-            $idGrupo = $grupo->getIdGrupo();
-            $respuesta = "<a class='dropdown-item' href=''><input type='checkbox' name='check_list[]' value='$idGrupo'/>$programa</a>" . $respuesta;
-        }
-        return $respuesta;
-    }
-
-    /*
-     * 
-     */
-
-    public function cantidadEstudiantesEnSalon($idSalon) {
-        $contador = 0;
-        $gruposConSalon = $this->gruposConSalon();
-        foreach ($gruposConSalon as $grupos) {
-            if ($grupos->getSalonId() === $idSalon) {
-                $contador += $grupos->getNumEstudiantes();
-            }
-        }
-        return $contador;
-    }
-
-    /*
-     * recibe los grupos seleccionados y los pone en el salon del que se esta
-     * llamando el submit
-     */
-
-    public function cambiarGrupos() {
-        $idSalon = $_POST['idSalon'];
-        $arrayGrupos = array();
-        $contador = $this->cantidadEstudiantesEnSalon($idSalon);
-        $salon = $this->convertirSqlObjetoSalon($idSalon);
-        $aviso = "";
-        if (!empty($_POST['check_list'])) {
-            foreach ($_POST['check_list'] as $selected) {
-                $idGrupo = $selected;
-                $grupo = $this->convertirSqlObjetoGrupo($idGrupo);
-                $contador += $grupo->getNumEstudiantes();
-                $capacidad = $salon->getCapacidad();
-                if ($contador <= $capacidad) {
-                    array_push($arrayGrupos, $grupo);
-                } else {
-                    $this->aviso = "Alert.warning('No es posible asignar este grupo a este salon debido a las limitaciones de espacio fisico','La capacidad del salon es de " . $capacidad . " personas');";
-                }
-            }
-        }
-        $this->ingresarGrupoASalon($arrayGrupos, $idSalon);
-        $cuerpo = $this->llenarGruposIndex($idSalon);
-        echo $aviso;
-    }
-
-    public function sobrecupo() {
-        echo $this->aviso;
-    }
-
-    public function reporteListaGrupos() {
-        $grupos = $this->listarGrupos();
-        $lista1 = "<ul id='list' class='list-group'>";
-        echo $lista1;
-        if (is_array($grupos)) {
-            foreach ($grupos as $grupo) {
-                $idGrupo = $grupo->getIdGrupo();
-                $item = "<li class='in'>"
-                        . "<div class='list-group-item d-flex justify-content-between'>"
-                        . $idGrupo . ". " . $grupo->getTipoPrograma() . " en " . $grupo->getPrograma()
-                        . "<form action='editarGrupos.php' method='post' id='editarGrupos.$idGrupo'>"
-                        . "<input type='hidden' name='editar' value='$idGrupo'>"
-                        . "<a href='javascript:{}' "
-                        . 'onclick= "document.getElementById'
-                        . "('editarGrupos.$idGrupo')"
-                        . '.submit();"'
-                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
-
-                echo $item;
-            }
-        } else {
-            echo "no hay grupos por mostrar";
-        }
-        $lista2 = "</ul>";
-        echo $lista2;
-    }
-
-    public function reporteListaSalonesDisponibles() {
-        $salones = $this->salonesDisponibles();
-        $lista1 = "<ul id='list' class='list-group'>";
-
-        echo $lista1;
-        if (is_array($salones)) {
-            foreach ($salones as $salon) {
-                $idSalon = $salon->getIdSalon();
-                $item = "<li class='in'>"
-                        . "<div class='list-group-item d-flex justify-content-between'>"
-                        . $idSalon . '. ' . $salon->getNumero()
-                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
-                        . "<input type='hidden' name='editar' value='$idSalon'>"
-                        . "<a href='javascript:{}' "
-                        . 'onclick= "document.getElementById'
-                        . "('editarSalones.$idSalon')"
-                        . '.submit();"'
-                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
-                echo $item;
-            }
-        } else {
-            echo $salones;
-        }
-
-        $lista2 = "</ul>";
-        echo $lista2;
-    }
-
-    public function reporteListaSalonesEnUso() {
-        $salones = $this->salonesOcupados();
-        $lista1 = "<ul id='list' class='list-group'>";
-        echo $lista1;
-        if (is_array($salones)) {
-            foreach ($salones as $salon) {
-                $idSalon = $salon->getIdSalon();
-                $item = "<li class='in'>"
-                        . "<div class='list-group-item d-flex justify-content-between'>"
-                        . $idSalon . '. ' . $salon->getNumero()
-                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
-                        . "<input type='hidden' name='editar' value='$idSalon'>"
-                        . "<a href='javascript:{}' "
-                        . 'onclick= "document.getElementById'
-                        . "('editarSalones.$idSalon')"
-                        . '.submit();"'
-                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
-                echo $item;
-            }
-        } else {
-            echo "No hay salones En Uso";
-        }
-        $lista2 = "</ul>";
-        echo $lista2;
-    }
-    public function reporteListaSalones() {
-        $salones = $this->listaSalones();
-        $lista1 = "<ul id='list' class='list-group'>";
-        echo $lista1;
-        if (is_array($salones)) {
-            foreach ($salones as $salon) {
-                $idSalon = $salon->getIdSalon();
-                $item = "<li class='in'>"
-                        . "<div class='list-group-item d-flex justify-content-between'>"
-                        . $idSalon . '. ' . $salon->getNumero()
-                        . "<form action='editarSalones.php' method='post' id='editarSalones.$idSalon'>"
-                        . "<input type='hidden' name='editar' value='$idSalon'>"
-                        . "<a href='javascript:{}' "
-                        . 'onclick= "document.getElementById'
-                        . "('editarSalones.$idSalon')"
-                        . '.submit();"'
-                        . "><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a></form></div></li>";
-                echo $item;
-            }
-        } else {
-            echo "No hay salones En Uso";
-        }
-        $lista2 = "</ul>";
-        echo $lista2;
     }
 
 }

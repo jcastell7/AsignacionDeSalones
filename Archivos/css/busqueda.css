@@ -62,16 +62,7 @@ ul {
 }
 
 ul:before {
-  content:'desserts';
-  position:absolute;
-  left:-2.8em;
-  font-size:3em;
-  text-align:right;
-  top:1.5em;
-  color:#ededed;
-  font-weight:bold;
-  font-family: 'Maven Pro', sans-serif;
-  transform:rotate(-90deg);
+  
 }
 
 li {
